@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "appointments")
@@ -19,20 +20,27 @@ public class Appointment implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "patient_id", nullable = false)
-    private Long patient_id;
+    private Long patient;
 
     @Column(name = "date_hour", nullable = false)
     private LocalDateTime dateHour;
 
+    @Column(nullable = false)
     private Integer appointmentStatus;
+
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String diagnosis;
+
+
 
     public Appointment () {}
 
-    public Appointment(Long id, Doctor doctor, Long patient_id, LocalDateTime dateHour, AppointmentStatus appointmentStatus) {
+    public Appointment(Long id, Doctor doctor, Long patient, LocalDateTime dateHour, AppointmentStatus appointmentStatus, String diagnosis) {
         this.id = id;
         this.doctor = doctor;
-        this.patient_id = patient_id;
+        this.patient = patient;
         this.dateHour = dateHour;
+        this.diagnosis = diagnosis;
         setStatus(appointmentStatus);
     }
 
@@ -53,11 +61,11 @@ public class Appointment implements Serializable {
     }
 
     public Long getPatient_id() {
-        return patient_id;
+        return patient;
     }
 
-    public void setPatient_id(Long patient_id) {
-        this.patient_id = patient_id;
+    public void setPatient_id(Long patient) {
+        this.patient = patient;
     }
 
     public LocalDateTime getDateHour() {
@@ -76,5 +84,25 @@ public class Appointment implements Serializable {
         if (appointmentStatus != null) {
             this.appointmentStatus = appointmentStatus.getCode();
         }
+    }
+
+    public String getDiagnosis() {
+        return diagnosis;
+    }
+
+    public void setDiagnosis(String diagnosis) {
+        this.diagnosis = diagnosis;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Appointment that = (Appointment) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }
