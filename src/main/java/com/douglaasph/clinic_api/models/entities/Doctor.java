@@ -1,5 +1,6 @@
 package com.douglaasph.clinic_api.models.entities;
 
+import com.douglaasph.clinic_api.models.entities.enums.Specialties;
 import jakarta.persistence.*;
 
 import java.util.Objects;
@@ -12,11 +13,11 @@ public class Doctor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String crm;
-    private String specialty;
+    private Specialties specialty;
 
     public Doctor () {}
 
-    public Doctor(Long id, String crm, String specialty) {
+    public Doctor(Long id, String crm, Specialties specialty) {
         this.id = id;
         this.crm = crm;
         this.specialty = specialty;
@@ -38,11 +39,11 @@ public class Doctor {
         this.crm = crm;
     }
 
-    public String getSpecialty() {
+    public Specialties getSpecialty() {
         return specialty;
     }
 
-    public void setSpecialty(String specialty) {
+    public void setSpecialty(Specialties specialty) {
         this.specialty = specialty;
     }
 
