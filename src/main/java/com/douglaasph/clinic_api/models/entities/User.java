@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-@Table(name = "tb_user")
+@Table(name = "users")
 public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +23,7 @@ public class User implements Serializable {
     private String password;
 
     @Column(nullable = false)
-    private Roles role;
+    private Integer role;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Doctor doctor;
@@ -38,7 +38,7 @@ public class User implements Serializable {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.role = role;
+        setRole(role);
     }
 
     public Long getId() {
@@ -74,11 +74,13 @@ public class User implements Serializable {
     }
 
     public Roles getRole() {
-        return role;
+        return Roles.valueOf(role);
     }
 
     public void setRole(Roles role) {
-        this.role = role;
+        if (role != null) {
+            this.role = role.getCode();
+        }
     }
 
     public Doctor getDoctor() {

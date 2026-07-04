@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "tb_doctor")
+@Table(name = "doctors")
 public class Doctor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,7 +16,7 @@ public class Doctor {
     private String crm;
 
     @Column(nullable = false)
-    private Specialties specialty;
+    private Integer specialty;
 
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
@@ -26,7 +26,7 @@ public class Doctor {
     public Doctor(Long id, String crm, Specialties specialty) {
         this.id = id;
         this.crm = crm;
-        this.specialty = specialty;
+        setSpecialty(specialty);
     }
 
     public Long getId() {
@@ -46,11 +46,13 @@ public class Doctor {
     }
 
     public Specialties getSpecialty() {
-        return specialty;
+        return Specialties.valueOf(specialty);
     }
 
     public void setSpecialty(Specialties specialty) {
-        this.specialty = specialty;
+        if (specialty != null) {
+        this.specialty = specialty.getCode();
+        }
     }
 
     @Override
