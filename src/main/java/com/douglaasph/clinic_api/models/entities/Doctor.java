@@ -8,11 +8,13 @@ import java.util.Objects;
 @Entity
 @Table(name = "tb_doctor")
 public class Doctor {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(unique = true)
     private String crm;
+
     private Specialties specialty;
 
     public Doctor () {}
