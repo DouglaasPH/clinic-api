@@ -11,8 +11,10 @@ public class Patient {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String cpf;
+
+    @Column(nullable = false)
     private String phone;
 
     public Patient () {}

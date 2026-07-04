@@ -12,10 +12,14 @@ public class Doctor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String crm;
 
+    @Column(nullable = false)
     private Specialties specialty;
+
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User user;
 
     public Doctor () {}
 
