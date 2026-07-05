@@ -20,7 +20,7 @@ public class Appointment implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "patient_id", nullable = false)
-    private Long patient;
+    private Patient patient;
 
     @Column(name = "date_hour", nullable = false)
     private LocalDateTime dateHour;
@@ -35,7 +35,7 @@ public class Appointment implements Serializable {
 
     public Appointment () {}
 
-    public Appointment(Long id, Doctor doctor, Long patient, LocalDateTime dateHour, AppointmentStatus appointmentStatus, String diagnosis) {
+    public Appointment(Long id, Doctor doctor, Patient patient, LocalDateTime dateHour, AppointmentStatus appointmentStatus, String diagnosis) {
         this.id = id;
         this.doctor = doctor;
         this.patient = patient;
@@ -60,11 +60,11 @@ public class Appointment implements Serializable {
         this.doctor = doctor;
     }
 
-    public Long getPatient_id() {
+    public Patient getPatient() {
         return patient;
     }
 
-    public void setPatient_id(Long patient) {
+    public void setPatient(Patient patient) {
         this.patient = patient;
     }
 

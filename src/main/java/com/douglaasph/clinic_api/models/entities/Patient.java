@@ -17,12 +17,17 @@ public class Patient {
     @Column(nullable = false)
     private String phone;
 
+    @OneToOne
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User user;
+
     public Patient () {}
 
-    public Patient(Long id, String cpf, String phone) {
+    public Patient(Long id, String cpf, String phone, User user) {
         this.id = id;
         this.cpf = cpf;
         this.phone = phone;
+        this.user = user;
     }
 
     public Long getId() {
@@ -47,6 +52,14 @@ public class Patient {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override

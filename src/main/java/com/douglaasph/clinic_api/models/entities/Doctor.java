@@ -18,6 +18,7 @@ public class Doctor {
     @Column(nullable = false)
     private Integer specialty;
 
+    @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
@@ -53,6 +54,14 @@ public class Doctor {
         if (specialty != null) {
         this.specialty = specialty.getCode();
         }
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override
