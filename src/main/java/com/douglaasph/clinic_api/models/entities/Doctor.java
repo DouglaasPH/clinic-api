@@ -24,10 +24,11 @@ public class Doctor {
 
     public Doctor () {}
 
-    public Doctor(Long id, String crm, Specialties specialty) {
+    public Doctor(Long id, String crm, Specialties specialty, User user) {
         this.id = id;
         this.crm = crm;
         setSpecialty(specialty);
+        this.user = user;
     }
 
     public Long getId() {
