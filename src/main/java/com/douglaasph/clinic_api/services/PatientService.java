@@ -2,10 +2,7 @@ package com.douglaasph.clinic_api.services;
 
 import com.douglaasph.clinic_api.models.entities.Patient;
 import com.douglaasph.clinic_api.repositories.PatientRepository;
-import com.douglaasph.clinic_api.services.exceptions.DatabaseException;
 import com.douglaasph.clinic_api.services.exceptions.ResourceNotFoundException;
-import jakarta.persistence.EntityNotFoundException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
