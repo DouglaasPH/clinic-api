@@ -36,7 +36,6 @@ public class DoctorController {
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(doctorResponse.getId()).toUri();
             return ResponseEntity.created(uri).body(doctorResponse);
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(500).body((Doctor) Map.of("error", e.getMessage()));
         }
     }
