@@ -16,7 +16,7 @@ public class PatientService {
         this.repository = repository;
     }
 
-    public List<Patient> findALl() { return repository.findAll(); }
+    public List<Patient> findAll() { return repository.findAll(); }
 
     public Patient findById(Long id) {
         Optional<Patient> obj = repository.findById(id);
