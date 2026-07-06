@@ -28,7 +28,6 @@ public class DoctorController {
 
     @PostMapping
     public ResponseEntity<Doctor> register (@RequestBody @Valid RegisterDoctorDto dto) {
-        System.out.println("Pssou");
         try {
             User user = new User(null, dto.user().name(), dto.user().email(), dto.user().password(), dto.user().role());
             User userResponse = userService.insert(user);
