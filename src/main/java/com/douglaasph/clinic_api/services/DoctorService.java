@@ -1,6 +1,7 @@
 package com.douglaasph.clinic_api.services;
 
 import com.douglaasph.clinic_api.models.entities.Doctor;
+import com.douglaasph.clinic_api.models.entities.enums.Specialties;
 import com.douglaasph.clinic_api.repositories.DoctorRepository;
 import com.douglaasph.clinic_api.services.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,9 @@ public class DoctorService {
         this.repository = repository;
     }
 
-    public List<Doctor> findALl() { return repository.findAll(); }
+    public List<Doctor> findAll(String name, Specialties specialty) {
+        return repository.findByOptionalFilters(name, specialty == null ? null : specialty.getCode());
+    }
 
     public Doctor findById(Long id) {
         Optional<Doctor> obj = repository.findById(id);
