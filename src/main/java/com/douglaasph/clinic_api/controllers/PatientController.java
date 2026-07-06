@@ -1,7 +1,6 @@
 package com.douglaasph.clinic_api.controllers;
 
-import com.douglaasph.clinic_api.controllers.dto.RegisterPatient;
-import com.douglaasph.clinic_api.models.entities.Doctor;
+import com.douglaasph.clinic_api.controllers.dto.RegisterPatientDto;
 import com.douglaasph.clinic_api.models.entities.Patient;
 import com.douglaasph.clinic_api.models.entities.User;
 import com.douglaasph.clinic_api.models.entities.enums.Roles;
@@ -28,7 +27,7 @@ public class PatientController {
     }
 
     @PostMapping
-    public ResponseEntity<Patient> register (@RequestBody @Valid RegisterPatient dto) {
+    public ResponseEntity<Patient> register (@RequestBody @Valid RegisterPatientDto dto) {
         try {
             User user = new User(null, dto.user().name(), dto.user().email(), dto.user().password(), Roles.valueOf(3));
             User userResponse = userService.insert(user);

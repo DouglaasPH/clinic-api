@@ -1,6 +1,6 @@
 package com.douglaasph.clinic_api.controllers.dto;
 
-public record RegisterPatient(
+public record RegisterPatientDto(
         UserDto user,
         PatientDto patient
 ) {

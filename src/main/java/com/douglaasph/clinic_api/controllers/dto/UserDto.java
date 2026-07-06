@@ -1,6 +1,5 @@
 package com.douglaasph.clinic_api.controllers.dto;
 
-import com.douglaasph.clinic_api.models.entities.enums.Roles;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
