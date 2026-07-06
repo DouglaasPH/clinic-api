@@ -13,8 +13,5 @@ public record UserDto(
         String email,
 
         @NotBlank(message = "The password cannot be blank.")
-        String password,
-
-        @NotBlank(message = "The role cannot be blank.")
-        Roles role
+        String password
 ) {}
