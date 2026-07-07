@@ -32,7 +32,7 @@ public class ControllerException extends RuntimeException {
     }
 
     // ERROR 500 (Internal server error)
-    @ExceptionHandler(DatabaseException.class)
+    @ExceptionHandler(Exception.class)
     public ResponseEntity<StandardError> genericError(Exception e, HttpServletRequest request) {
         String error = "Internal server error";
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
