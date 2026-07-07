@@ -2,6 +2,7 @@ package com.douglaasph.clinic_api.services;
 
 import com.douglaasph.clinic_api.models.entities.User;
 import com.douglaasph.clinic_api.repositories.UserRepository;
+import com.douglaasph.clinic_api.services.exceptions.DatabaseException;
 import com.douglaasph.clinic_api.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -18,5 +19,11 @@ public class UserService {
         this.repository = repository;
     }
 
-    public User insert(User obj) { return repository.save(obj); }
+    public User insert(User obj) {
+        try {
+            return repository.save(obj);
+        } catch (DataIntegrityViolationException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+    }
 }

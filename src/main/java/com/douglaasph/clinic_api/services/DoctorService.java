@@ -3,7 +3,9 @@ package com.douglaasph.clinic_api.services;
 import com.douglaasph.clinic_api.models.entities.Doctor;
 import com.douglaasph.clinic_api.models.entities.enums.Specialties;
 import com.douglaasph.clinic_api.repositories.DoctorRepository;
+import com.douglaasph.clinic_api.services.exceptions.DatabaseException;
 import com.douglaasph.clinic_api.services.exceptions.ResourceNotFoundException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,5 +28,11 @@ public class DoctorService {
         return obj.orElseThrow(() -> new ResourceNotFoundException((id)));
     }
 
-    public Doctor insert(Doctor obj) { return repository.save(obj); }
+    public Doctor insert(Doctor obj) {
+        try {
+            return repository.save(obj);
+        } catch (DataIntegrityViolationException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+    }
 }
