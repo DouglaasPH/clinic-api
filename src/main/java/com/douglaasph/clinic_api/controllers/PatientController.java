@@ -6,6 +6,9 @@ import com.douglaasph.clinic_api.models.entities.User;
 import com.douglaasph.clinic_api.models.entities.enums.Roles;
 import com.douglaasph.clinic_api.services.PatientService;
 import com.douglaasph.clinic_api.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +29,11 @@ public class PatientController {
         this.userService = userService;
     }
 
+    @Operation(summary = "Register patient", description = "Register patient and valid data")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Registered patient with success"),
+            @ApiResponse(responseCode = "400", description = "Invalid data (validation failure)")
+    })
     @PostMapping
     public ResponseEntity<Patient> register (@RequestBody @Valid RegisterPatientDto dto) {
         try {
@@ -40,12 +48,20 @@ public class PatientController {
         }
     }
 
+    @Operation(summary = "Find all patients")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "All patients found")
+    })
     @GetMapping
     public ResponseEntity<List<Patient>> findAll () {
         List<Patient> response = patientService.findAll();
         return ResponseEntity.ok().body(response);
     }
 
+    @Operation(summary = "Find patient by ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Patient found")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<Patient> findById (@PathVariable Long id) {
         Patient response = patientService.findById(id);
