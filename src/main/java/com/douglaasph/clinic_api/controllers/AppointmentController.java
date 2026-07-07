@@ -22,7 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/appointment")
-@Tag(name = "Doctors", description = "Endpoints for managing doctors of the clinic")
+@Tag(name = "Appointment", description = "Endpoints for managing appointment of the clinic")
 public class AppointmentController {
     private final AppointmentService appointmentService;
     private final PatientService patientService;

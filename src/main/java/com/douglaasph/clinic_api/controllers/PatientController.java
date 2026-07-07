@@ -9,6 +9,7 @@ import com.douglaasph.clinic_api.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/patient")
+@Tag(name = "Patient", description = "Endpoints for managing patients of the clinic")
 public class PatientController {
     private final PatientService patientService;
     private final UserService userService;
