@@ -1,7 +1,12 @@
 package com.douglaasph.clinic_api.controllers;
 
-import com.douglaasph.clinic_api.controllers.dto.*;
-import com.douglaasph.clinic_api.controllers.exceptions.TokenException;
+import com.douglaasph.clinic_api.controllers.dto.auth.GoogleAuthDto;
+import com.douglaasph.clinic_api.controllers.dto.auth.LoginResponseDto;
+import com.douglaasph.clinic_api.controllers.dto.auth.LoginUserDto;
+import com.douglaasph.clinic_api.controllers.dto.doctor.RegisterDoctorDto;
+import com.douglaasph.clinic_api.controllers.dto.patient.CompletePatientSocialDto;
+import com.douglaasph.clinic_api.controllers.dto.patient.RegisterPatientDto;
+import com.douglaasph.clinic_api.exceptions.TokenException;
 import com.douglaasph.clinic_api.models.entities.Doctor;
 import com.douglaasph.clinic_api.models.entities.Patient;
 import com.douglaasph.clinic_api.models.entities.RefreshToken;

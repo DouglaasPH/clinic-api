@@ -1,4 +1,4 @@
-package com.douglaasph.clinic_api.config;
+package com.douglaasph.clinic_api.config.security;
 
 import com.douglaasph.clinic_api.services.JWTService;
 import com.douglaasph.clinic_api.services.UserService;

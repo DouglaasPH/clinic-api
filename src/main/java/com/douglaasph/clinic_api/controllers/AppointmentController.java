@@ -1,7 +1,7 @@
 package com.douglaasph.clinic_api.controllers;
 
-import com.douglaasph.clinic_api.controllers.dto.CreateAppointmentDto;
-import com.douglaasph.clinic_api.controllers.dto.UpdateDiagnosisAppointmentDto;
+import com.douglaasph.clinic_api.controllers.dto.appointment.CreateAppointmentDto;
+import com.douglaasph.clinic_api.controllers.dto.appointment.UpdateDiagnosisAppointmentDto;
 import com.douglaasph.clinic_api.models.entities.Appointment;
 import com.douglaasph.clinic_api.models.entities.Doctor;
 import com.douglaasph.clinic_api.models.entities.Patient;

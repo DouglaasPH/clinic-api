@@ -1,4 +1,4 @@
-package com.douglaasph.clinic_api.controllers.dto;
+package com.douglaasph.clinic_api.controllers.dto.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

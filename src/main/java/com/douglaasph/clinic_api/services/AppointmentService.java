@@ -3,7 +3,7 @@ package com.douglaasph.clinic_api.services;
 import com.douglaasph.clinic_api.models.entities.Appointment;
 import com.douglaasph.clinic_api.models.entities.enums.AppointmentStatus;
 import com.douglaasph.clinic_api.repositories.AppointmentRepository;
-import com.douglaasph.clinic_api.services.exceptions.ResourceNotFoundException;
+import com.douglaasph.clinic_api.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;

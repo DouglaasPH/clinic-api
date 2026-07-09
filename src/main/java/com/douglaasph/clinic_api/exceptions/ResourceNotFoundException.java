@@ -1,4 +1,4 @@
-package com.douglaasph.clinic_api.services.exceptions;
+package com.douglaasph.clinic_api.exceptions;
 
 public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(Object id) {

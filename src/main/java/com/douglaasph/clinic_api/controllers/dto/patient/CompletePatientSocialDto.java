@@ -1,9 +1,19 @@
-package com.douglaasph.clinic_api.controllers.dto;
+package com.douglaasph.clinic_api.controllers.dto.patient;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public record PatientDto(
+public record CompletePatientSocialDto(
+        @NotBlank(message = "The name cannot be blank.")
+        String googleToken,
+
+        @NotBlank(message = "The name cannot be blank.")
+        String name,
+
+        @NotBlank(message = "The password cannot be blank.")
+        String password,
+
+
         @NotBlank(message = "The cpf cannot be blank.")
         @Size(max = 11, min = 11, message = "CPF must contain 11 digits. Example: 00000000000")
         String cpf,

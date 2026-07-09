@@ -1,7 +1,8 @@
-package com.douglaasph.clinic_api.controllers.exceptions;
+package com.douglaasph.clinic_api.exceptions.handler;
 
-import com.douglaasph.clinic_api.services.exceptions.DatabaseException;
-import com.douglaasph.clinic_api.services.exceptions.ResourceNotFoundException;
+import com.douglaasph.clinic_api.exceptions.DatabaseException;
+import com.douglaasph.clinic_api.exceptions.ResourceNotFoundException;
+import com.douglaasph.clinic_api.exceptions.TokenException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,8 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.Instant;
 
 @RestControllerAdvice
-public class ControllerException extends RuntimeException {
-
+public class GlobalExceptionHandler extends RuntimeException {
     // ERROR 404 (Not found)
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<StandardError> resourceNotFound(ResourceNotFoundException e, HttpServletRequest request) {

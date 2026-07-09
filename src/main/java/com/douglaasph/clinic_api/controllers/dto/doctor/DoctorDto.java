@@ -1,4 +1,4 @@
-package com.douglaasph.clinic_api.controllers.dto;
+package com.douglaasph.clinic_api.controllers.dto.doctor;
 
 import com.douglaasph.clinic_api.models.entities.enums.Specialties;
 import jakarta.validation.constraints.NotBlank;

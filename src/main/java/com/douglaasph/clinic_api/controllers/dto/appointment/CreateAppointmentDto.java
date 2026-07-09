@@ -1,4 +1,4 @@
-package com.douglaasph.clinic_api.controllers.dto;
+package com.douglaasph.clinic_api.controllers.dto.appointment;
 
 import com.douglaasph.clinic_api.models.entities.enums.AppointmentStatus;
 import jakarta.validation.constraints.NotBlank;

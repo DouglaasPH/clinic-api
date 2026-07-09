@@ -1,10 +1,10 @@
 package com.douglaasph.clinic_api.services;
 
-import com.douglaasph.clinic_api.controllers.dto.LoginUserDto;
+import com.douglaasph.clinic_api.controllers.dto.auth.LoginUserDto;
 import com.douglaasph.clinic_api.models.entities.User;
 import com.douglaasph.clinic_api.models.entities.UserPrincipal;
 import com.douglaasph.clinic_api.repositories.UserRepository;
-import com.douglaasph.clinic_api.services.exceptions.DatabaseException;
+import com.douglaasph.clinic_api.exceptions.DatabaseException;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
