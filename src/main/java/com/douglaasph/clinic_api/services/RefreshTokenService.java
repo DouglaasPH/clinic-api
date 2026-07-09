@@ -2,7 +2,6 @@ package com.douglaasph.clinic_api.services;
 
 import com.douglaasph.clinic_api.models.entities.RefreshToken;
 import com.douglaasph.clinic_api.models.entities.User;
-import com.douglaasph.clinic_api.models.entities.UserPrincipal;
 import com.douglaasph.clinic_api.repositories.RefreshTokenRepository;
 import com.douglaasph.clinic_api.repositories.UserRepository;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

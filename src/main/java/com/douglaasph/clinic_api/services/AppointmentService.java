@@ -8,6 +8,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,16 +28,15 @@ public class AppointmentService {
         if (isAdmin) {
             return repository.findAll();
         } else {
-            return repository.findByPatientOrDoctorEmail(loggedEmail);
+            return repository.findByPatientOrEmployeeEmail(loggedEmail);
         }
     }
 
     public Appointment insert(Appointment obj) { return repository.save(obj); }
 
-    public Appointment update(Long id, String newDiagnosis, AppointmentStatus newStatus) {
+    public Appointment update(Long id, AppointmentStatus newStatus) {
         try {
             Appointment entity = repository.getReferenceById(id);
-            entity.setDiagnosis(newDiagnosis);
             entity.setStatus(newStatus);
             return repository.save(entity);
         } catch (EntityNotFoundException e) {
@@ -47,6 +47,12 @@ public class AppointmentService {
     public Appointment cancel(Long id) {
         try {
             Appointment entity = repository.getReferenceById(id);
+            LocalDateTime now = LocalDateTime.now();
+
+            if (now.isAfter(entity.getDateHour().minusHours(24))) {
+                throw new IllegalArgumentException("The appointment can only be cancelled with 24 hours' notice.");
+            }
+
             entity.setStatus(AppointmentStatus.CANCELED);
             return repository.save(entity);
         } catch (EntityNotFoundException e) {

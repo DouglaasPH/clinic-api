@@ -1,8 +1,8 @@
 package com.douglaasph.clinic_api.services;
 
-import com.douglaasph.clinic_api.models.entities.Doctor;
-import com.douglaasph.clinic_api.models.entities.enums.Specialties;
-import com.douglaasph.clinic_api.repositories.DoctorRepository;
+import com.douglaasph.clinic_api.models.entities.Employee;
+import com.douglaasph.clinic_api.models.entities.enums.Position;
+import com.douglaasph.clinic_api.repositories.EmployeeRepository;
 import com.douglaasph.clinic_api.exceptions.DatabaseException;
 import com.douglaasph.clinic_api.exceptions.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -12,23 +12,23 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class DoctorService {
-    private final DoctorRepository repository;
+public class EmployeeService {
+    private final EmployeeRepository repository;
 
-    public DoctorService(DoctorRepository repository) {
+    public EmployeeService(EmployeeRepository repository) {
         this.repository = repository;
     }
 
-    public List<Doctor> findAll(String name, Specialties specialty) {
-        return repository.findByOptionalFilters(name, specialty == null ? null : specialty.getCode());
+    public List<Employee> findAll(String name, Position position) {
+        return repository.findByOptionalFilters(name, position == null ? null : position.getCode());
     }
 
-    public Doctor findById(Long id) {
-        Optional<Doctor> obj = repository.findById(id);
+    public Employee findById(Long id) {
+        Optional<Employee> obj = repository.findById(id);
         return obj.orElseThrow(() -> new ResourceNotFoundException((id)));
     }
 
-    public Doctor insert(Doctor obj) {
+    public Employee insert(Employee obj) {
         try {
             return repository.save(obj);
         } catch (DataIntegrityViolationException e) {

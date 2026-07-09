@@ -21,12 +21,10 @@ public class UserService implements UserDetailsService {
     private final UserRepository repository;
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
     private final AuthenticationManager authManager;
-    private final JWTService jwtService;
 
-    public UserService(UserRepository repository, @Lazy AuthenticationManager authManager, JWTService jwtService) {
+    public UserService(UserRepository repository, @Lazy AuthenticationManager authManager) {
         this.repository = repository;
         this.authManager = authManager;
-        this.jwtService = jwtService;
     }
 
     public User insert(User obj) {
