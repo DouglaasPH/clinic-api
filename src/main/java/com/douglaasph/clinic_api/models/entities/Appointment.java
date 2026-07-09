@@ -1,22 +1,27 @@
 package com.douglaasph.clinic_api.models.entities;
 
 import com.douglaasph.clinic_api.models.entities.enums.AppointmentStatus;
+import com.douglaasph.clinic_api.models.entities.enums.AppointmentType;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
+@NoArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table(name = "appointments")
-public class Appointment implements Serializable {
+public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "doctor_id", nullable = false)
-    private Doctor doctor;
+    @JoinColumn(name = "employee_id", nullable = false)
+    private Employee employee;
 
     @ManyToOne
     @JoinColumn(name = "patient_id", nullable = false)
@@ -28,52 +33,16 @@ public class Appointment implements Serializable {
     @Column(nullable = false)
     private Integer appointmentStatus;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String diagnosis;
+    @Column(nullable = false)
+    private Integer appointmentType;
 
-
-
-    public Appointment () {}
-
-    public Appointment(Long id, Doctor doctor, Patient patient, LocalDateTime dateHour, AppointmentStatus appointmentStatus, String diagnosis) {
+    public Appointment(Long id, Employee employee, Patient patient, LocalDateTime dateHour, AppointmentStatus appointmentStatus, AppointmentType appointmentType) {
         this.id = id;
-        this.doctor = doctor;
+        this.employee = employee;
         this.patient = patient;
         this.dateHour = dateHour;
-        this.diagnosis = diagnosis;
         setStatus(appointmentStatus);
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Doctor getDoctor() {
-        return doctor;
-    }
-
-    public void setDoctor(Doctor doctor) {
-        this.doctor = doctor;
-    }
-
-    public Patient getPatient() {
-        return patient;
-    }
-
-    public void setPatient(Patient patient) {
-        this.patient = patient;
-    }
-
-    public LocalDateTime getDateHour() {
-        return dateHour;
-    }
-
-    public void setDateHour(LocalDateTime dateHour) {
-        this.dateHour = dateHour;
+        setType(appointmentType);
     }
 
     public AppointmentStatus getStatus() {
@@ -86,23 +55,13 @@ public class Appointment implements Serializable {
         }
     }
 
-    public String getDiagnosis() {
-        return diagnosis;
+    public AppointmentType getType() {
+        return AppointmentType.valueOf(appointmentType);
     }
 
-    public void setDiagnosis(String diagnosis) {
-        this.diagnosis = diagnosis;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Appointment that = (Appointment) o;
-        return Objects.equals(id, that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
+    public void setType(AppointmentType appointmentType) {
+        if (appointmentType != null) {
+            this.appointmentType = appointmentType.getCode();
+        }
     }
 }

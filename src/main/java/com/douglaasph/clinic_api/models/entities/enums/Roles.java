@@ -2,7 +2,7 @@ package com.douglaasph.clinic_api.models.entities.enums;
 
 public enum Roles {
     ADMIN(1),
-    DOCTOR(2),
+    EMPLOYEE(2),
     PATIENT(3);
 
     private int code;
