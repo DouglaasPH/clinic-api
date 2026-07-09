@@ -14,6 +14,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -34,6 +36,7 @@ public class AppointmentController {
         this.doctorService = doctorService;
     }
 
+    // AUTHORIZATION: ADMIN or PATIENT
     @Operation(summary = "Insert appointment", description = "Valid data and add appointment")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Inserted appointment with success"),
@@ -50,27 +53,35 @@ public class AppointmentController {
             return ResponseEntity.created(uri).body(appointmentResponse);
     }
 
+    // AUTHORIZATION: ANY ROLE (authenticated only)
+    // Business Rule: Admins can fetch all records, while patients and doctors can only fetch records linked to them.
     @Operation(summary = "Find all appointments")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "All inserted appointments")
     })
     @GetMapping
-    public ResponseEntity<List<Appointment>> findAll() {
-        List<Appointment> response = appointmentService.findALl();
+    public ResponseEntity<List<Appointment>> findAll(Authentication authentication) {
+        List<Appointment> response = appointmentService.findAll(authentication);
         return ResponseEntity.ok().body(response);
     }
 
+    // AUTHORIZATION: ADMIN or PATIENT
+    // Business role: Admins have access; patients or doctors only if linked to them.
     @Operation(summary = "Cancel appointment", description = "Cancel appointment by ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Canceled appointment with success"),
             @ApiResponse(responseCode = "404", description = "Appointment not found")
     })
     @GetMapping("/{id}/cancel")
+    @PreAuthorize("hasRole('ADMIN') or " +
+            "#authentication.name == @appointmentService.findById(#id).patient.user.email or " +
+            "#authentication.name == @appointmentService.findById(#id).doctor.user.email")
     public ResponseEntity<Appointment> cancel(@PathVariable Long id) {
         Appointment response = appointmentService.cancel(id);
         return ResponseEntity.ok().body(response);
     }
 
+    // AUTHORIZATION: ADMIN or DOCTOR
     @Operation(summary = "Insert or update Diagnosis and update status")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Updated appointment with success"),

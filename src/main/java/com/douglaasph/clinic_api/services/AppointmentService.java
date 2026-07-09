@@ -5,9 +5,11 @@ import com.douglaasph.clinic_api.models.entities.enums.AppointmentStatus;
 import com.douglaasph.clinic_api.repositories.AppointmentRepository;
 import com.douglaasph.clinic_api.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class AppointmentService {
@@ -17,7 +19,17 @@ public class AppointmentService {
         this.repository = repository;
     }
 
-    public List<Appointment> findALl() { return repository.findAll(); }
+    // Business Rule: Admins can fetch all records, while patients and doctors can only fetch records linked to them.
+    public List<Appointment> findAll(Authentication authentication) {
+        String loggedEmail = authentication.getName();
+        boolean isAdmin = authentication.getAuthorities().stream().anyMatch(a -> Objects.equals(a.getAuthority(), "ROLE_ADMIN"));
+
+        if (isAdmin) {
+            return repository.findAll();
+        } else {
+            return repository.findByPatientOrDoctorEmail(loggedEmail);
+        }
+    }
 
     public Appointment insert(Appointment obj) { return repository.save(obj); }
 
