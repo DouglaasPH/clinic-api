@@ -24,7 +24,7 @@ public class Appointment {
     private Employee employee;
 
     @ManyToOne
-    @JoinColumn(name = "patient_id", nullable = false)
+    @JoinColumn(name = "patient_id", nullable = true)
     private Patient patient;
 
     @Column(name = "date_hour", nullable = false)

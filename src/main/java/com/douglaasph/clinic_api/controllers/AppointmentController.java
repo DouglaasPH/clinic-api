@@ -1,18 +1,20 @@
 package com.douglaasph.clinic_api.controllers;
 
 import com.douglaasph.clinic_api.controllers.dto.appointment.CreateAppointmentDto;
-import com.douglaasph.clinic_api.controllers.dto.appointment.UpdateDiagnosisAppointmentDto;
+import com.douglaasph.clinic_api.exceptions.AppointmentConflictException;
 import com.douglaasph.clinic_api.models.entities.Appointment;
-import com.douglaasph.clinic_api.models.entities.Doctor;
-import com.douglaasph.clinic_api.models.entities.Patient;
+import com.douglaasph.clinic_api.models.entities.Employee;
+import com.douglaasph.clinic_api.models.entities.User;
+import com.douglaasph.clinic_api.models.entities.enums.AppointmentStatus;
 import com.douglaasph.clinic_api.services.AppointmentService;
-import com.douglaasph.clinic_api.services.DoctorService;
-import com.douglaasph.clinic_api.services.PatientService;
+import com.douglaasph.clinic_api.services.EmployeeService;
+import com.douglaasph.clinic_api.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -21,41 +23,57 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/appointment")
 @Tag(name = "Appointment", description = "Endpoints for managing appointment of the clinic")
 public class AppointmentController {
     private final AppointmentService appointmentService;
-    private final PatientService patientService;
-    private final DoctorService doctorService;
+    private final EmployeeService employeeService;
+    private final UserService userService;
 
-    public AppointmentController(AppointmentService appointmentService, PatientService patientService, DoctorService doctorService) {
+    public AppointmentController(AppointmentService appointmentService, EmployeeService employeeService, UserService userService) {
         this.appointmentService = appointmentService;
-        this.patientService = patientService;
-        this.doctorService = doctorService;
+        this.employeeService = employeeService;
+        this.userService = userService;
     }
 
-    // AUTHORIZATION: ADMIN or PATIENT
+    // AUTHORIZATION: ADMIN
     @Operation(summary = "Insert appointment", description = "Valid data and add appointment")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Inserted appointment with success"),
             @ApiResponse(responseCode = "400", description = "Invalid data (validation failure)")
     })
     @PostMapping
-    public ResponseEntity<Appointment> insert(@RequestBody @Valid CreateAppointmentDto dto) {
-            Doctor doctor = doctorService.findById(dto.doctor_id());
-            Patient patient = patientService.findById(dto.patient_id());
+    public ResponseEntity<Appointment> insert(@RequestBody @Valid CreateAppointmentDto dto) throws BadRequestException {
+            Employee employee = employeeService.findById(dto.employee_id());
 
-            Appointment appointment = new Appointment(null, doctor, patient, dto.dateHour(), dto.status(), "");
+            if ((dto.type().getCode() == 1 && employee.getPosition().getCode() == 2) ||
+                    (dto.type().getCode() == 2 && employee.getPosition().getCode() == 1)) {
+                throw new BadRequestException("Employee's position incompatible with the type of inquiry.");
+            }
+
+            Appointment appointment = new Appointment(null, employee, null, dto.dateHour(), AppointmentStatus.AVAILABLE, dto.type());
             Appointment appointmentResponse = appointmentService.insert(appointment);
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(appointmentResponse.getId()).toUri();
             return ResponseEntity.created(uri).body(appointmentResponse);
     }
 
+    // AUTHORIZATION: PATIENT AND ADMIN
+    @Operation(summary = "Find all available appointments")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "All inserted appointments")
+    })
+    @GetMapping("/available")
+    public ResponseEntity<List<Appointment>> findAllAvailable() {
+        List<Appointment> response = appointmentService.findAllAvailable();
+        return ResponseEntity.ok().body(response);
+    }
+
     // AUTHORIZATION: ANY ROLE (authenticated only)
-    // Business Rule: Admins can fetch all records, while patients and doctors can only fetch records linked to them.
-    @Operation(summary = "Find all appointments")
+    // Business Rule: Admins can fetch all records, while patients and employees can only fetch records linked to them.
+    @Operation(summary = "Find all appointments linked to the user ")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "All inserted appointments")
     })
@@ -65,31 +83,50 @@ public class AppointmentController {
         return ResponseEntity.ok().body(response);
     }
 
+    // AUTHORIZATION: PATIENT
+    @Operation(summary = "Book appointment", description = "Book appointment by ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Booked appointment with success"),
+            @ApiResponse(responseCode = "404", description = "Appointment not found")
+    })
+    @PutMapping("/{appointmentId}/book")
+    public ResponseEntity<Appointment> book(@PathVariable Long appointmentId, Authentication authentication) throws AppointmentConflictException {
+        Long loggedPatientId = userService.findByEmail(authentication.getName()).getPatient().getId();
+        Appointment response = appointmentService.book(appointmentId, loggedPatientId);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.getId()).toUri();
+        return ResponseEntity.created(uri).body(response);
+    }
+
     // AUTHORIZATION: ADMIN or PATIENT
-    // Business role: Admins have access; patients or doctors only if linked to them.
     @Operation(summary = "Cancel appointment", description = "Cancel appointment by ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Canceled appointment with success"),
             @ApiResponse(responseCode = "404", description = "Appointment not found")
     })
-    @GetMapping("/{id}/cancel")
-    @PreAuthorize("hasRole('ADMIN') or " +
-            "#authentication.name == @appointmentService.findById(#id).patient.user.email or " +
-            "#authentication.name == @appointmentService.findById(#id).doctor.user.email")
-    public ResponseEntity<Appointment> cancel(@PathVariable Long id) {
-        Appointment response = appointmentService.cancel(id);
+    @PutMapping("/{appointmentId}/cancel")
+    public ResponseEntity<Appointment> cancel(@PathVariable Long appointmentId, Authentication authentication) {
+        User user = userService.findByEmail(authentication.getName());
+        Appointment response = appointmentService.cancel(appointmentId, user.getId());
         return ResponseEntity.ok().body(response);
     }
 
-    // AUTHORIZATION: ADMIN or DOCTOR
-    @Operation(summary = "Insert or update Diagnosis and update status")
+    // AUTHORIZATION: EMPLOYEE (ONLY TECHNICAL)
+    @Operation(summary = "Start exam capture process", description = "Validates the appointment and generates a secure upload URL for the X-Ray image.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Updated appointment with success"),
-            @ApiResponse(responseCode = "404", description = "Appointment not found")
+            @ApiResponse(responseCode = "200", description = "Process started successfully. Upload URL generated."),
+            @ApiResponse(responseCode = "404", description = "Appointment not found"),
+            @ApiResponse(responseCode = "409", description = "Business rule violation (e.g., appointment not assigned to you, or status is not BOOKED)")
     })
-    @GetMapping("/{id}/diagnosis")
-    public ResponseEntity<Appointment> updateDiagnosis(@PathVariable Long id, @RequestBody @Valid UpdateDiagnosisAppointmentDto dto) {
-        Appointment response = appointmentService.update(id, dto.diagnosis(), dto.status());
-        return ResponseEntity.ok().body(response);
+    @PostMapping("/{appointmentId}/request-upload")
+    @PreAuthorize("@securityUtils.isEmployeeTechnical(authentication)")
+    public ResponseEntity<Map<String, String>> startExam(
+            @PathVariable Long appointmentId,
+            Authentication authentication
+    ) throws AppointmentConflictException {
+        Long loggedEmployeeId = userService.findByEmail(authentication.getName()).getId();
+
+        String uploadUrl = appointmentService.startExamCapture(appointmentId, loggedEmployeeId);
+
+        return ResponseEntity.ok(Map.of("uploadUrl", uploadUrl));
     }
 }

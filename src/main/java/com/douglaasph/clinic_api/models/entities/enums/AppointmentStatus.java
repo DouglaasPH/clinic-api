@@ -1,9 +1,10 @@
 package com.douglaasph.clinic_api.models.entities.enums;
 
 public enum AppointmentStatus {
-    SCHEDULED(1),
-    CANCELED(2),
-    COMPLETED(3);
+    AVAILABLE(1),
+    SCHEDULED(2),
+    CANCELED(3),
+    COMPLETED(4);
 
     private int code;
 

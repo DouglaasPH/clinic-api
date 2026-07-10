@@ -3,11 +3,11 @@ package com.douglaasph.clinic_api.controllers;
 import com.douglaasph.clinic_api.controllers.dto.auth.GoogleAuthDto;
 import com.douglaasph.clinic_api.controllers.dto.auth.LoginResponseDto;
 import com.douglaasph.clinic_api.controllers.dto.auth.LoginUserDto;
-import com.douglaasph.clinic_api.controllers.dto.doctor.RegisterDoctorDto;
+import com.douglaasph.clinic_api.controllers.dto.employee.RegisterEmployeeDto;
 import com.douglaasph.clinic_api.controllers.dto.patient.CompletePatientSocialDto;
 import com.douglaasph.clinic_api.controllers.dto.patient.RegisterPatientDto;
 import com.douglaasph.clinic_api.exceptions.TokenException;
-import com.douglaasph.clinic_api.models.entities.Doctor;
+import com.douglaasph.clinic_api.models.entities.Employee;
 import com.douglaasph.clinic_api.models.entities.Patient;
 import com.douglaasph.clinic_api.models.entities.RefreshToken;
 import com.douglaasph.clinic_api.models.entities.User;
@@ -38,7 +38,7 @@ import java.util.Map;
 @RequestMapping("/user")
 public class UserController {
     private final UserService userService;
-    private final DoctorService doctorService;
+    private final EmployeeService employeeService;
     private final PatientService patientService;
     private final JWTService jwtService;
     private final RefreshTokenService refreshTokenService;
@@ -46,9 +46,9 @@ public class UserController {
     @Value("${google.client.id}")
     private String googleClientId;
 
-    public UserController(UserService userService, DoctorService doctorService, PatientService patientService, JWTService jwtService, RefreshTokenService refreshTokenService) {
+    public UserController(UserService userService, EmployeeService employeeService, PatientService patientService, JWTService jwtService, RefreshTokenService refreshTokenService) {
         this.userService = userService;
-        this.doctorService = doctorService;
+        this.employeeService = employeeService;
         this.patientService = patientService;
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
@@ -94,22 +94,22 @@ public class UserController {
     }
 
     // AUTHORIZATION: ADMIN
-    @Operation(summary = "Register doctor", description = "Register doctor and valid data")
+    @Operation(summary = "Register employee", description = "Register employee and valid data")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Registered doctor with success"),
+            @ApiResponse(responseCode = "201", description = "Registered employee with success"),
             @ApiResponse(responseCode = "400", description = "Invalid data (validation failure)")
     })
-    @PostMapping("/register/doctor")
-    public ResponseEntity<Doctor> register (@RequestBody @Valid RegisterDoctorDto dto) {
+    @PostMapping("/register/employee")
+    public ResponseEntity<Employee> register (@RequestBody @Valid RegisterEmployeeDto dto) {
         try {
             User user = new User(null, dto.user().name(), dto.user().email(), dto.user().password(), Roles.valueOf(2));
             User userResponse = userService.insert(user);
-            Doctor doctor = new Doctor(null, dto.doctor().getCrm(), dto.doctor().getSpecialty(), userResponse);
-            Doctor doctorResponse = doctorService.insert(doctor);
-            URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(doctorResponse.getId()).toUri();
-            return ResponseEntity.created(uri).body(doctorResponse);
+            Employee employee = new Employee(null, dto.employee().licenseNumber(), dto.employee().position(), userResponse);
+            Employee employeeResponse = employeeService.insert(employee);
+            URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(employeeResponse.getId()).toUri();
+            return ResponseEntity.created(uri).body(employeeResponse);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body((Doctor) Map.of("error", e.getMessage()));
+            return ResponseEntity.status(500).body((Employee) Map.of("error", e.getMessage()));
         }
     }
 
@@ -133,6 +133,7 @@ public class UserController {
         }
     }
 
+    // AUTHORIZATION: ANYONE
     @PostMapping("/register/patient/google")
     @Operation(summary = "Complete Google self-registration", description = "Completes the patient registration by validating the Google token.")
     public ResponseEntity<LoginResponseDto> completeGooglePatientRegister(@RequestBody @Valid CompletePatientSocialDto dto) {
@@ -141,7 +142,6 @@ public class UserController {
                 .build();
 
         try {
-            // 2. Valida o token recebido do frontend
             GoogleIdToken idToken = verifier.verify(dto.googleToken());
 
             if (idToken == null) {
@@ -175,7 +175,8 @@ public class UserController {
     }
 
 
-    @PostMapping("/auth/google/check")
+    // AUTHORIZATION: ANYONE
+    @PostMapping("/google/check")
     @Operation(summary = "Check Google User", description = "Checks if the Google user is already registered in the system.")
     public ResponseEntity<?> checkGoogleUser(@RequestBody @Valid GoogleAuthDto dto) {
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())

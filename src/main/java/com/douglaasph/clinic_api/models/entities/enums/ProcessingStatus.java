@@ -3,7 +3,8 @@ package com.douglaasph.clinic_api.models.entities.enums;
 public enum ProcessingStatus {
     AWAITING_AI(1),
     PROCESSED_BY_IA(2),
-    VALIDATED_BY_DOCTOR(3);
+    AWAITING_VALIDATION_BY_DOCTOR(3),
+    VALIDATED_BY_DOCTOR(4);
 
     private int code;
 

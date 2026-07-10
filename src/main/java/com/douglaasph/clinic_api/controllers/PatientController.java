@@ -23,12 +23,13 @@ public class PatientController {
         this.patientService = patientService;
     }
 
-    // AUTHORIZATION: ADMIN or DOCTOR
+    // AUTHORIZATION: ADMIN or EMPLOYEE (ONLY DOCTOR)
     @Operation(summary = "Find all patients")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "All patients found")
     })
     @GetMapping
+    @PreAuthorize("@securityUtils.isEmployeeDoctor(authentication)")
     public ResponseEntity<List<Patient>> findAll () {
         List<Patient> response = patientService.findAll();
         return ResponseEntity.ok().body(response);
@@ -41,7 +42,7 @@ public class PatientController {
             @ApiResponse(responseCode = "201", description = "Patient found")
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or #authentication.name == @patientService.findById(#id).user.email")
+    @PreAuthorize("@securityUtils.isAdminOrPatientThemSelves(authentication, #id)")
     public ResponseEntity<Patient> findById (@PathVariable Long id, Authentication authentication) {
         Patient response = patientService.findById(id);
 

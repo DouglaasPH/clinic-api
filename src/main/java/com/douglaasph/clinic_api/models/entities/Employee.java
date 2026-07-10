@@ -1,13 +1,12 @@
 package com.douglaasph.clinic_api.models.entities;
 
+import com.douglaasph.clinic_api.models.entities.enums.Position;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 @Entity
@@ -21,7 +20,27 @@ public class Employee {
     @Column(unique = true, nullable = false)
     private String licenseNumber;
 
+    @Column(nullable = false)
+    private Integer position;
+
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
+
+    public Employee(Long id, String licenseNumber, Position position, User user) {
+        this.id = id;
+        this.licenseNumber = licenseNumber;
+        setPosition(position);
+        this.user = user;
+    }
+
+    public Position getPosition() {
+        return Position.valueOf(position);
+    }
+
+    public void setPosition(Position position) {
+        if (position != null) {
+            this.position = position.getCode();
+        }
+    }
 }

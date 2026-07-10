@@ -29,7 +29,7 @@ public class User {
     private Integer role;
 
     @JsonIgnore
-    @OneToOne(mappedBy = "employee", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Employee employee;
 
     @JsonIgnore

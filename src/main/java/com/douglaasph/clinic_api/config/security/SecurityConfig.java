@@ -34,20 +34,34 @@ public class SecurityConfig {
                 .csrf(customizer -> customizer.disable())
                 .authorizeHttpRequests(request -> request
                         // Public routes
-                        .requestMatchers("/user/register/patient", "/user/login", "/refresh/{refreshToken}", "/user/register/patient/google", "/user/auth/google/check").permitAll()
+                        .requestMatchers(
+                                // Routes of the Swagger and OpenAPI 3:
+                                "/user/login",
+                                "/user/refresh/{refreshToken}",
+                                "/user/register/patient",
+                                "/user/register/patient/google",
+                                "/user/google/check",
+
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
 
                         // private routes that require authentication and role-based authorization
-                        .requestMatchers(HttpMethod.GET, "/doctor/{id}").hasAnyRole("ADMIN", "PATIENT")
+                        .requestMatchers(HttpMethod.POST, "/user/register/employee").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/x-ray/{appointmentId}/review").hasRole("EMPLOYEE")
+                        .requestMatchers(HttpMethod.GET, "/x-ray").hasRole("PATIENT")
+                        .requestMatchers(HttpMethod.GET, "/patient").hasAnyRole("ADMIN", "EMPLOYEE")
                         .requestMatchers(HttpMethod.GET, "/patient/{id}").hasAnyRole("ADMIN", "PATIENT")
-                        .requestMatchers(HttpMethod.PUT, "/appointment/{id}/cancel").hasAnyRole("ADMIN", "PATIENT")
-                        .requestMatchers(HttpMethod.PUT, "/appointment/{id}/diagnosis").hasAnyRole("ADMIN", "DOCTOR")
-                        .requestMatchers("/user/register/doctor").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/doctor").hasAnyRole("ADMIN", "PATIENT")
-                        .requestMatchers(HttpMethod.GET, "/patient").hasAnyRole("ADMIN", "DOCTOR")
-                        .requestMatchers(HttpMethod.POST, "/appointment").hasAnyRole("ADMIN", "PATIENT")
+                        .requestMatchers(HttpMethod.POST, "/appointment").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/appointment/available").hasAnyRole("ADMIN", "PATIENT")
+                        .requestMatchers(HttpMethod.PUT, "/appointment/{appointmentId}/book").hasRole("PATIENT")
+                        .requestMatchers(HttpMethod.PUT, "/appointment/{appointmentId}/cancel").hasAnyRole("ADMIN", "PATIENT")
+                        .requestMatchers(HttpMethod.POST, "/appointment/{appointmentId}/request-upload").hasRole("EMPLOYEE")
+                        .requestMatchers(HttpMethod.GET, "/employee").hasAnyRole("ADMIN", "PATIENT")
 
                         // private routes that require only authentication
-                        .requestMatchers("/appointment").authenticated()
+                        .requestMatchers("/appointment", "/employee/{id}").authenticated()
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
                 .oauth2ResourceServer(oauth2 -> oauth2
