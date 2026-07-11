@@ -10,6 +10,7 @@ import com.douglaasph.clinic_api.exceptions.DatabaseException;
 import com.douglaasph.clinic_api.exceptions.ResourceNotFoundException;
 import com.douglaasph.clinic_api.repositories.UserRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,15 +19,15 @@ import java.util.List;
 
 @Service
 public class EmployeeService {
-    private final EmployeeRepository employeeRepository;
-    private final UserRepository userRepository;
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
+    @Autowired
+    private EmployeeRepository employeeRepository;
 
-    public EmployeeService(EmployeeRepository employeeRepository, UserRepository userRepository) {
-        this.employeeRepository = employeeRepository;
-        this.userRepository = userRepository;
-    }
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
     @Transactional
     public Employee register(RegisterEmployeeDto dto) {

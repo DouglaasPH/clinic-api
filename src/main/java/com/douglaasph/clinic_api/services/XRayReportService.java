@@ -9,6 +9,7 @@ import com.douglaasph.clinic_api.models.entities.enums.ProcessingStatus;
 import com.douglaasph.clinic_api.repositories.AppointmentRepository;
 import com.douglaasph.clinic_api.repositories.UserRepository;
 import com.douglaasph.clinic_api.repositories.XRayReportRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,21 +18,20 @@ import java.util.UUID;
 
 @Service
 public class XRayReportService {
-    private final XRayReportRepository xRayReportRepository;
-    private final AppointmentRepository appointmentRepository;
-    private final UserRepository userRepository;
-    private final StorageGateway storageGateway;
-    private final QueueGateway queueGateway;
+    @Autowired
+    private XRayReportRepository xRayReportRepository;
 
-    public XRayReportService(XRayReportRepository xRayReportRepository,
-                             StorageGateway storageGateway,
-                             QueueGateway queueGateway, AppointmentRepository appointmentRepository, UserRepository userRepository) {
-        this.xRayReportRepository = xRayReportRepository;
-        this.storageGateway = storageGateway;
-        this.queueGateway = queueGateway;
-        this.appointmentRepository = appointmentRepository;
-        this.userRepository = userRepository;
-    }
+    @Autowired
+    private AppointmentRepository appointmentRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private StorageGateway storageGateway;
+
+    @Autowired
+    private QueueGateway queueGateway;
 
     @Transactional
     public String createReportAndGenerateUploadUrl(Appointment appointment) {

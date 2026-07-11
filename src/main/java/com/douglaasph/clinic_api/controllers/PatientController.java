@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -23,11 +24,8 @@ import java.util.List;
 @RequestMapping(value = "/patient")
 @Tag(name = "Patient", description = "Endpoints for managing patients of the clinic")
 public class PatientController {
-    private final PatientService patientService;
-
-    public PatientController(PatientService patientService) {
-        this.patientService = patientService;
-    }
+    @Autowired
+    private PatientService patientService;
 
     // AUTHORIZATION: ANYONE WITHOUT REGISTER
     @Operation(summary = "Register patient", description = "Register patient")

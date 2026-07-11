@@ -19,6 +19,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -31,26 +32,25 @@ import java.util.List;
 
 @Service
 public class PatientService {
-    private final UserRepository userRepository;
-    private final PatientRepository patientRepository;
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
-    private final RefreshTokenService refreshTokenService;
-    private final JWTService jwtService;
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PatientRepository patientRepository;
+
+    @Autowired
+    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+
+    @Autowired
+    private RefreshTokenService refreshTokenService;
+
+    @Autowired
+    private JWTService jwtService;
 
 
 
     @Value("${google.client.id}")
     private String googleClientId;
-
-    public PatientService(UserRepository userRepository,
-                          PatientRepository patientRepository,
-                          RefreshTokenService refreshTokenService,
-                          JWTService jwtService) {
-        this.userRepository = userRepository;
-        this.patientRepository = patientRepository;
-        this.refreshTokenService = refreshTokenService;
-        this.jwtService = jwtService;
-    }
 
     @Transactional
     public Patient register(RegisterPatientDto dto) {

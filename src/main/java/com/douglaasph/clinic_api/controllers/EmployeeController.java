@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -20,11 +21,8 @@ import java.util.List;
 @RequestMapping(value = "/employee")
 @Tag(name = "Employee", description = "Endpoints for managing employees of the clinic")
 public class EmployeeController {
-    private final EmployeeService employeeService;
-
-    public EmployeeController(EmployeeService employeeService) {
-        this.employeeService = employeeService;
-    }
+    @Autowired
+    private EmployeeService employeeService;
 
     // AUTHORIZATION: ADMIN
     @Operation(summary = "Register employee", description = "Register employee and valid data")

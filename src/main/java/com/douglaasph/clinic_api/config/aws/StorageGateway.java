@@ -1,5 +1,6 @@
 package com.douglaasph.clinic_api.config.aws;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
@@ -10,14 +11,11 @@ import java.time.Duration;
 
 @Component
 public class StorageGateway {
-    private final S3Presigner s3Presigner;
-    private final String bucketName;
+    @Autowired
+    private S3Presigner s3Presigner;
 
-    public StorageGateway(S3Presigner s3Presigner,
-                          @Value("${aws.s3.bucket-name}") String bucketName) {
-        this.s3Presigner = s3Presigner;
-        this.bucketName = bucketName;
-    }
+    @Value("${aws.s3.bucket-name}")
+    private String bucketName;
 
     public String generatePresignedUploadUrl(String s3Key) {
         PutObjectRequest objectRequest = PutObjectRequest.builder()

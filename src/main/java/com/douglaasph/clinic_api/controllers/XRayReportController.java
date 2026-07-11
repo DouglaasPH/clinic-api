@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -18,11 +19,8 @@ import java.util.List;
 @RequestMapping(value = "/x-ray")
 @Tag(name = "X-Ray", description = "Endpoints for managing and retrieving X-Ray exam reports")
 public class XRayReportController {
-    private final XRayReportService xRayReportService;
-
-    public XRayReportController(XRayReportService xRayReportService) {
-        this.xRayReportService = xRayReportService;
-    }
+    @Autowired
+    private XRayReportService xRayReportService;
 
     // AUTHORIZATION: EMPLOYEE (ONLY DOCTOR)
     @Operation(

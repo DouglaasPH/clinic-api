@@ -11,6 +11,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
@@ -32,24 +33,23 @@ import java.util.Optional;
 
 @Service
 public class AuthService implements UserDetailsService {
-    private final UserRepository userRepository;
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
-    private final AuthenticationManager authManager;
-    private final JWTService jwtService;
-    private final RefreshTokenService refreshTokenService;
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+
+    @Autowired
+    private AuthenticationManager authManager;
+
+    @Autowired
+    private JWTService jwtService;
+
+    @Autowired
+    private RefreshTokenService refreshTokenService;
 
     @Value("${google.client.id}")
     private String googleClientId;
-
-    public AuthService(UserRepository userRepository,
-                       @Lazy AuthenticationManager authManager,
-                       JWTService jwtService,
-                       RefreshTokenService refreshTokenService) {
-        this.userRepository = userRepository;
-        this.authManager = authManager;
-        this.jwtService = jwtService;
-        this.refreshTokenService = refreshTokenService;
-    }
 
     public LoginResponseDto login(LoginUserDto dto) {
         Authentication authentication = authManager.authenticate(new UsernamePasswordAuthenticationToken(

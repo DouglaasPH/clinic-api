@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.apache.coyote.BadRequestException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -25,11 +26,8 @@ import java.util.Objects;
 @RequestMapping(value = "/appointment")
 @Tag(name = "Appointment", description = "Endpoints for managing appointment of the clinic")
 public class AppointmentController {
-    private final AppointmentService appointmentService;
-
-    public AppointmentController(AppointmentService appointmentService) {
-        this.appointmentService = appointmentService;
-    }
+    @Autowired
+    private AppointmentService appointmentService;
 
     // AUTHORIZATION: ADMIN
     @Operation(summary = "Insert appointment", description = "Valid data and add appointment")

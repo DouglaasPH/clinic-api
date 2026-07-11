@@ -11,6 +11,7 @@ import com.douglaasph.clinic_api.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.apache.coyote.BadRequestException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -20,21 +21,23 @@ import java.util.Objects;
 
 @Service
 public class AppointmentService {
-    private final AppointmentRepository appointmentRepository;
-    private final XRayReportRepository xRayReportRepository;
-    private final PatientRepository patientRepository;
-    private final EmployeeRepository employeeRepository;
-    private final XRayReportService xRayReportService;
-    private final UserRepository userRepository;
+    @Autowired
+    private AppointmentRepository appointmentRepository;
 
-    public AppointmentService(AppointmentRepository appointmentRepository, XRayReportRepository xRayReportRepository, PatientRepository patientRepository, EmployeeRepository employeeRepository, XRayReportService xRayReportService, UserRepository userRepository) {
-        this.appointmentRepository = appointmentRepository;
-        this.xRayReportRepository = xRayReportRepository;
-        this.patientRepository = patientRepository;
-        this.employeeRepository = employeeRepository;
-        this.xRayReportService = xRayReportService;
-        this.userRepository = userRepository;
-    }
+    @Autowired
+    private XRayReportRepository xRayReportRepository;
+
+    @Autowired
+    private PatientRepository patientRepository;
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private XRayReportService xRayReportService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     // Business Rule: Admins can fetch all records, while patients and doctors can only fetch records linked to them.
     public List<Appointment> findAll(String loggedEmail, boolean isAdmin) {

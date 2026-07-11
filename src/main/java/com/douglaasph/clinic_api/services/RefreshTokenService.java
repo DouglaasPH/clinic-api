@@ -7,6 +7,7 @@ import com.douglaasph.clinic_api.models.entities.User;
 import com.douglaasph.clinic_api.repositories.RefreshTokenRepository;
 import com.douglaasph.clinic_api.repositories.UserRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -16,15 +17,14 @@ import java.util.UUID;
 
 @Service
 public class RefreshTokenService {
-    private final RefreshTokenRepository refreshTokenRepository;
-    private final UserRepository userRepository;
-    private final JWTService jwtService;
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
 
-    public RefreshTokenService(RefreshTokenRepository refreshTokenRepository, UserRepository userRepository, JWTService jwtService) {
-        this.refreshTokenRepository = refreshTokenRepository;
-        this.userRepository = userRepository;
-        this.jwtService = jwtService;
-    }
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private JWTService jwtService;
 
     @Transactional
     public LoginResponseDto refresh(String token) {

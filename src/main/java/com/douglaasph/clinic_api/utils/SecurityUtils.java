@@ -4,6 +4,7 @@ import com.douglaasph.clinic_api.models.entities.User;
 import com.douglaasph.clinic_api.models.entities.enums.Position;
 import com.douglaasph.clinic_api.repositories.UserRepository;
 import com.douglaasph.clinic_api.services.PatientService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
@@ -12,13 +13,10 @@ import java.util.Objects;
 
 @Component("securityUtils")
 public class SecurityUtils {
-    private final UserRepository userRepository;
-    private final PatientService patientService;
-
-    public SecurityUtils(UserRepository userRepository, PatientService patientService) {
-        this.userRepository = userRepository;
-        this.patientService = patientService;
-    }
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private PatientService patientService;
 
     public boolean isEmployeeDoctor(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) return false;
