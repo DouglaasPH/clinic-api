@@ -25,7 +25,7 @@ public class RefreshTokenController {
             @ApiResponse(responseCode = "201", description = "Succesfully"),
             @ApiResponse(responseCode = "400", description = "Token invalid or expired")
     })
-    @PostMapping("/refresh/{refreshToken}")
+    @PostMapping("/{refreshToken}")
     public ResponseEntity<LoginResponseDto> refresh(@PathVariable String refreshToken) {
         return ResponseEntity.ok().body(refreshTokenService.refresh(refreshToken));
     }

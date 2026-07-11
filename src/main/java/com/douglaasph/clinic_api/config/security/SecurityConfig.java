@@ -36,11 +36,11 @@ public class SecurityConfig {
                         // Public routes
                         .requestMatchers(
                                 // Routes of the Swagger and OpenAPI 3:
-                                "/user/login",
-                                "/user/refresh/{refreshToken}",
-                                "/user/register/patient",
-                                "/user/register/patient/google",
-                                "/user/google/check",
+                                "/auth/login",
+                                "/auth/google/check",
+                                "/refresh-token/{refreshToken}",
+                                "/patient/register",
+                                "/patient/register/google",
 
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
@@ -48,7 +48,7 @@ public class SecurityConfig {
                         ).permitAll()
 
                         // private routes that require authentication and role-based authorization
-                        .requestMatchers(HttpMethod.POST, "/user/register/employee").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/employee/register").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/x-ray/{appointmentId}/review").hasRole("EMPLOYEE")
                         .requestMatchers(HttpMethod.GET, "/x-ray").hasRole("PATIENT")
                         .requestMatchers(HttpMethod.GET, "/patient").hasAnyRole("ADMIN", "EMPLOYEE")

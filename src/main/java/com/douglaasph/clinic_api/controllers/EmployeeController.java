@@ -30,7 +30,7 @@ public class EmployeeController {
             @ApiResponse(responseCode = "201", description = "Registered employee with success"),
             @ApiResponse(responseCode = "400", description = "Invalid data (validation failure)")
     })
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<Employee> register (@RequestBody @Valid RegisterEmployeeDto dto) {
         Employee employeeResponse = employeeService.register(dto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(employeeResponse.getId()).toUri();
