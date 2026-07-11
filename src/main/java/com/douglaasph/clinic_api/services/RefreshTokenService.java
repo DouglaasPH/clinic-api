@@ -23,11 +23,7 @@ public class RefreshTokenService {
     }
 
     public RefreshToken insert(String username) {
-        User user = userRepository.findByEmail(username);
-        if (user == null) {
-            System.out.println("User Not Found");
-            throw new UsernameNotFoundException("user not found");
-        }
+        User user = userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException(("user not found")));
 
         // delete old (expired) tokens
         refreshTokenRepository.deleteByUserId(user.getId());

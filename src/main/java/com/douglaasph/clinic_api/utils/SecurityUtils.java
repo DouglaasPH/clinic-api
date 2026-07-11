@@ -1,15 +1,14 @@
 package com.douglaasph.clinic_api.utils;
 
-import com.douglaasph.clinic_api.models.entities.Patient;
 import com.douglaasph.clinic_api.models.entities.User;
 import com.douglaasph.clinic_api.models.entities.enums.Position;
 import com.douglaasph.clinic_api.repositories.UserRepository;
 import com.douglaasph.clinic_api.services.PatientService;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
-import java.util.Optional;
 
 @Component("securityUtils")
 public class SecurityUtils {
@@ -24,7 +23,7 @@ public class SecurityUtils {
     public boolean isEmployeeDoctor(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) return false;
 
-        User user = userRepository.findByEmail(authentication.getName());
+        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException(("user not found")));
 
         return user.getEmployee().getPosition() == Position.DOCTOR;
     }
@@ -32,7 +31,7 @@ public class SecurityUtils {
     public boolean isEmployeeTechnical(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) return false;
 
-        User user = userRepository.findByEmail(authentication.getName());
+        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException(("user not found")));
 
         return user.getEmployee().getPosition() == Position.TECHNICAL;
     }
@@ -40,7 +39,7 @@ public class SecurityUtils {
     public boolean isAdminOrPatientThemSelves(Authentication authentication, Long patientId) {
         if (authentication == null || !authentication.isAuthenticated()) return false;
 
-        User user = userRepository.findByEmail(authentication.getName());
+        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException(("user not found")));
 
         return user.getRole().getCode() == 1 ||
                 (user.getRole().getCode() == 3 &&

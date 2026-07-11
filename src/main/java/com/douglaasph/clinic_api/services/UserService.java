@@ -16,6 +16,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserService implements UserDetailsService {
     private final UserRepository repository;
@@ -39,12 +41,7 @@ public class UserService implements UserDetailsService {
     // username --> email
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = repository.findByEmail(email);
-
-        if (user == null) {
-            System.out.println("User Not Found");
-            throw new UsernameNotFoundException("user not found");
-        }
+        User user = repository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(("user not found")));
 
         return new UserPrincipal(user);
     }
@@ -59,6 +56,6 @@ public class UserService implements UserDetailsService {
     }
 
     public User findByEmail(String email) {
-        return repository.findByEmail(email);
+        return repository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(("user not found")));
     }
 }

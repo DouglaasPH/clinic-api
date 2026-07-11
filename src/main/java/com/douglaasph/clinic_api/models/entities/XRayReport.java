@@ -23,10 +23,10 @@ public class XRayReport {
     @Column(nullable = false)
     private Integer processingStatus;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String aiResult;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String finalMedicalDiagnosis;
 
     @Column(nullable = false)

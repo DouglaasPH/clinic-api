@@ -52,7 +52,7 @@ public class XRayReportService {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException(appointmentId));
 
-        XRayReport xRayReport = xRayReportRepository.findByAppointmentId(appointmentId);
+        XRayReport xRayReport = xRayReportRepository.findByAppointmentId(appointmentId).orElseThrow(() -> new ResourceNotFoundException("Resource not found."));
 
         xRayReport.setFinalMedicalDiagnosis(finalDoctorDiagnosis);
         xRayReport.setProcessingStatus(4);
