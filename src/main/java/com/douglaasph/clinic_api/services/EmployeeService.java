@@ -9,6 +9,7 @@ import com.douglaasph.clinic_api.repositories.EmployeeRepository;
 import com.douglaasph.clinic_api.exceptions.DatabaseException;
 import com.douglaasph.clinic_api.exceptions.ResourceNotFoundException;
 import com.douglaasph.clinic_api.repositories.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class EmployeeService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public Employee register(RegisterEmployeeDto dto) {
         try {
             User user = new User(null,

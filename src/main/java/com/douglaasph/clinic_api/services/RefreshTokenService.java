@@ -6,6 +6,7 @@ import com.douglaasph.clinic_api.models.entities.RefreshToken;
 import com.douglaasph.clinic_api.models.entities.User;
 import com.douglaasph.clinic_api.repositories.RefreshTokenRepository;
 import com.douglaasph.clinic_api.repositories.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,7 @@ public class RefreshTokenService {
         this.jwtService = jwtService;
     }
 
+    @Transactional
     public LoginResponseDto refresh(String token) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(token).orElseThrow(() -> new ResourceNotFoundException("Token not found"));
 
@@ -39,6 +41,7 @@ public class RefreshTokenService {
         return new LoginResponseDto(true, accessToken, refreshToken.getToken());
     }
 
+    @Transactional
     public RefreshToken insert(String username) {
         User user = userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException(("user not found")));
 

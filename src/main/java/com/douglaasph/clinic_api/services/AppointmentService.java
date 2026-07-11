@@ -11,7 +11,6 @@ import com.douglaasph.clinic_api.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.apache.coyote.BadRequestException;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -38,10 +37,7 @@ public class AppointmentService {
     }
 
     // Business Rule: Admins can fetch all records, while patients and doctors can only fetch records linked to them.
-    public List<Appointment> findAll(Authentication authentication) {
-        String loggedEmail = authentication.getName();
-        boolean isAdmin = authentication.getAuthorities().stream().anyMatch(a -> Objects.equals(a.getAuthority(), "ROLE_ADMIN"));
-
+    public List<Appointment> findAll(String loggedEmail, boolean isAdmin) {
         if (isAdmin) {
             return appointmentRepository.findAll();
         } else {
@@ -55,6 +51,7 @@ public class AppointmentService {
 
 
 
+    @Transactional
     public Appointment insert(CreateAppointmentDto dto) throws BadRequestException {
         Employee employee = employeeRepository.findById(dto.employee_id()).orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
 
@@ -67,8 +64,9 @@ public class AppointmentService {
         return appointmentRepository.save(appointment);
     }
 
-    public Appointment book(Long AppointmentId, Authentication authentication) throws AppointmentConflictException {
-        Long loggedPatientId = userRepository.findByEmail(authentication.getName())
+    @Transactional
+    public Appointment book(Long AppointmentId, String email) throws AppointmentConflictException {
+        Long loggedPatientId = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(("user not found")))
                 .getPatient()
                 .getId();
@@ -98,6 +96,7 @@ public class AppointmentService {
     }
 
     // Business rule: a patient can only cancel up to 24 hours before the scheduled appointment, but an admin can cancel at any time.
+    @Transactional
     public Appointment cancel(Long appointmentId, String email) {
         Long userId = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"))
@@ -106,7 +105,7 @@ public class AppointmentService {
         try {
             Appointment appointment = appointmentRepository.getReferenceById(appointmentId);
 
-            if (Objects.equals(appointment.getPatient().getId(), userId)) {
+            if (Objects.equals(appointment.getPatient().getUser().getId(), userId)) {
                 LocalDateTime now = LocalDateTime.now();
                 if (now.isAfter(appointment.getDateHour().minusHours(24))) {
                     throw new IllegalArgumentException("The appointment can only be cancelled with 24 hours' notice.");
@@ -124,6 +123,7 @@ public class AppointmentService {
     public String startExamCapture(Long appointmentId, String email) throws AppointmentConflictException {
         Long loggedEmployeeId = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"))
+                .getPatient()
                 .getId();
 
         Appointment appointment = appointmentRepository.findById(appointmentId)

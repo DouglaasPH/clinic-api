@@ -19,6 +19,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping(value = "/appointment")
@@ -61,7 +62,8 @@ public class AppointmentController {
     })
     @GetMapping
     public ResponseEntity<List<Appointment>> findAll(Authentication authentication) {
-        return ResponseEntity.ok().body(appointmentService.findAll(authentication));
+        boolean isAdmin = authentication.getAuthorities().stream().anyMatch(a -> Objects.equals(a.getAuthority(), "ROLE_ADMIN"));
+        return ResponseEntity.ok().body(appointmentService.findAll(authentication.getName(), isAdmin));
     }
 
     // AUTHORIZATION: PATIENT
@@ -72,7 +74,7 @@ public class AppointmentController {
     })
     @PutMapping("/{appointmentId}/book")
     public ResponseEntity<Appointment> book(@PathVariable Long appointmentId, Authentication authentication) throws AppointmentConflictException {
-        Appointment response = appointmentService.book(appointmentId, authentication);
+        Appointment response = appointmentService.book(appointmentId, authentication.getName());
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.getId()).toUri();
         return ResponseEntity.created(uri).body(response);
     }

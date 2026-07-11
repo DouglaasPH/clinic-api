@@ -51,6 +51,7 @@ public class XRayReportService {
         return presignedUrl;
     }
 
+    @Transactional
     public XRayReport reviewDoctor(Long appointmentId, String finalDoctorDiagnosis) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException(appointmentId));
@@ -67,6 +68,7 @@ public class XRayReportService {
         return xRayReport;
     }
 
+    @Transactional
     public List<XRayReport> findAllByPatientIdAndReleasedToPatientTrue(String email) {
         Long patientId = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"))
