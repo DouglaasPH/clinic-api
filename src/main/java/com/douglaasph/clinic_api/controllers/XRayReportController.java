@@ -2,7 +2,6 @@ package com.douglaasph.clinic_api.controllers;
 
 import com.douglaasph.clinic_api.controllers.dto.appointment.ReviewDto;
 import com.douglaasph.clinic_api.models.entities.XRayReport;
-import com.douglaasph.clinic_api.services.UserService;
 import com.douglaasph.clinic_api.services.XRayReportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -20,11 +19,9 @@ import java.util.List;
 @Tag(name = "X-Ray", description = "Endpoints for managing and retrieving X-Ray exam reports")
 public class XRayReportController {
     private final XRayReportService xRayReportService;
-    private final UserService userService;
 
-    public XRayReportController(XRayReportService xRayReportService, UserService userService) {
+    public XRayReportController(XRayReportService xRayReportService) {
         this.xRayReportService = xRayReportService;
-        this.userService = userService;
     }
 
     // AUTHORIZATION: EMPLOYEE (ONLY DOCTOR)
@@ -59,7 +56,6 @@ public class XRayReportController {
     })
     @GetMapping
     public ResponseEntity<List<XRayReport>> findAll(Authentication authentication) {
-        Long patientId = userService.findByEmail(authentication.getName()).getPatient().getId();
-        return ResponseEntity.ok().body(xRayReportService.findAllByPatientIdAndReleasedToPatientTrue(patientId));
+        return ResponseEntity.ok().body(xRayReportService.findAllByPatientIdAndReleasedToPatientTrue(authentication.getName()));
     }
 }

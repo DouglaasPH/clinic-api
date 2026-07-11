@@ -7,6 +7,7 @@ import com.douglaasph.clinic_api.models.entities.Appointment;
 import com.douglaasph.clinic_api.models.entities.XRayReport;
 import com.douglaasph.clinic_api.models.entities.enums.ProcessingStatus;
 import com.douglaasph.clinic_api.repositories.AppointmentRepository;
+import com.douglaasph.clinic_api.repositories.UserRepository;
 import com.douglaasph.clinic_api.repositories.XRayReportRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,17 +18,19 @@ import java.util.UUID;
 @Service
 public class XRayReportService {
     private final XRayReportRepository xRayReportRepository;
-    private final StorageGateway storageGateway; // Dependência limpa de Infra
-    private final QueueGateway queueGateway;     // Dependência limpa de Infra
     private final AppointmentRepository appointmentRepository;
+    private final UserRepository userRepository;
+    private final StorageGateway storageGateway;
+    private final QueueGateway queueGateway;
 
     public XRayReportService(XRayReportRepository xRayReportRepository,
                              StorageGateway storageGateway,
-                             QueueGateway queueGateway, AppointmentRepository appointmentRepository) {
+                             QueueGateway queueGateway, AppointmentRepository appointmentRepository, UserRepository userRepository) {
         this.xRayReportRepository = xRayReportRepository;
         this.storageGateway = storageGateway;
         this.queueGateway = queueGateway;
         this.appointmentRepository = appointmentRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -64,7 +67,10 @@ public class XRayReportService {
         return xRayReport;
     }
 
-    public List<XRayReport> findAllByPatientIdAndReleasedToPatientTrue(Long patientId) {
+    public List<XRayReport> findAllByPatientIdAndReleasedToPatientTrue(String email) {
+        Long patientId = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"))
+                .getId();
         return xRayReportRepository.findAllByAppointment_Patient_IdAndReleasedToPatientTrue(patientId);
     }
 }

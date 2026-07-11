@@ -3,12 +3,7 @@ package com.douglaasph.clinic_api.controllers;
 import com.douglaasph.clinic_api.controllers.dto.appointment.CreateAppointmentDto;
 import com.douglaasph.clinic_api.exceptions.AppointmentConflictException;
 import com.douglaasph.clinic_api.models.entities.Appointment;
-import com.douglaasph.clinic_api.models.entities.Employee;
-import com.douglaasph.clinic_api.models.entities.User;
-import com.douglaasph.clinic_api.models.entities.enums.AppointmentStatus;
 import com.douglaasph.clinic_api.services.AppointmentService;
-import com.douglaasph.clinic_api.services.EmployeeService;
-import com.douglaasph.clinic_api.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -30,13 +25,9 @@ import java.util.Map;
 @Tag(name = "Appointment", description = "Endpoints for managing appointment of the clinic")
 public class AppointmentController {
     private final AppointmentService appointmentService;
-    private final EmployeeService employeeService;
-    private final UserService userService;
 
-    public AppointmentController(AppointmentService appointmentService, EmployeeService employeeService, UserService userService) {
+    public AppointmentController(AppointmentService appointmentService) {
         this.appointmentService = appointmentService;
-        this.employeeService = employeeService;
-        this.userService = userService;
     }
 
     // AUTHORIZATION: ADMIN
@@ -47,15 +38,7 @@ public class AppointmentController {
     })
     @PostMapping
     public ResponseEntity<Appointment> insert(@RequestBody @Valid CreateAppointmentDto dto) throws BadRequestException {
-            Employee employee = employeeService.findById(dto.employee_id());
-
-            if ((dto.type().getCode() == 1 && employee.getPosition().getCode() == 2) ||
-                    (dto.type().getCode() == 2 && employee.getPosition().getCode() == 1)) {
-                throw new BadRequestException("Employee's position incompatible with the type of inquiry.");
-            }
-
-            Appointment appointment = new Appointment(null, employee, null, dto.dateHour(), AppointmentStatus.AVAILABLE, dto.type());
-            Appointment appointmentResponse = appointmentService.insert(appointment);
+            Appointment appointmentResponse = appointmentService.insert(dto);
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(appointmentResponse.getId()).toUri();
             return ResponseEntity.created(uri).body(appointmentResponse);
     }
@@ -67,8 +50,7 @@ public class AppointmentController {
     })
     @GetMapping("/available")
     public ResponseEntity<List<Appointment>> findAllAvailable() {
-        List<Appointment> response = appointmentService.findAllAvailable();
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok().body(appointmentService.findAllAvailable());
     }
 
     // AUTHORIZATION: ANY ROLE (authenticated only)
@@ -79,8 +61,7 @@ public class AppointmentController {
     })
     @GetMapping
     public ResponseEntity<List<Appointment>> findAll(Authentication authentication) {
-        List<Appointment> response = appointmentService.findAll(authentication);
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok().body(appointmentService.findAll(authentication));
     }
 
     // AUTHORIZATION: PATIENT
@@ -91,8 +72,7 @@ public class AppointmentController {
     })
     @PutMapping("/{appointmentId}/book")
     public ResponseEntity<Appointment> book(@PathVariable Long appointmentId, Authentication authentication) throws AppointmentConflictException {
-        Long loggedPatientId = userService.findByEmail(authentication.getName()).getPatient().getId();
-        Appointment response = appointmentService.book(appointmentId, loggedPatientId);
+        Appointment response = appointmentService.book(appointmentId, authentication);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.getId()).toUri();
         return ResponseEntity.created(uri).body(response);
     }
@@ -105,9 +85,7 @@ public class AppointmentController {
     })
     @PutMapping("/{appointmentId}/cancel")
     public ResponseEntity<Appointment> cancel(@PathVariable Long appointmentId, Authentication authentication) {
-        User user = userService.findByEmail(authentication.getName());
-        Appointment response = appointmentService.cancel(appointmentId, user.getId());
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok().body(appointmentService.cancel(appointmentId, authentication.getName()));
     }
 
     // AUTHORIZATION: EMPLOYEE (ONLY TECHNICAL)
@@ -123,10 +101,7 @@ public class AppointmentController {
             @PathVariable Long appointmentId,
             Authentication authentication
     ) throws AppointmentConflictException {
-        Long loggedEmployeeId = userService.findByEmail(authentication.getName()).getId();
-
-        String uploadUrl = appointmentService.startExamCapture(appointmentId, loggedEmployeeId);
-
+        String uploadUrl = appointmentService.startExamCapture(appointmentId, authentication.getName());
         return ResponseEntity.ok(Map.of("uploadUrl", uploadUrl));
     }
 }
