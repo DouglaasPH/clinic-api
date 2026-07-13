@@ -35,14 +35,15 @@ public class XRayReportService {
 
     @Transactional
     public String createReportAndGenerateUploadUrl(Appointment appointment) {
-        // Define o caminho físico (chave do objeto no Storage)
         String s3Key = "exams/" + UUID.randomUUID() + ".png";
 
-        // Cria e persiste a entidade no Banco via JPA
-        XRayReport report = new XRayReport();
-        report.setAppointment(appointment);
-        report.setS3Key(s3Key);
-        report.setProcessingStatus(ProcessingStatus.AWAITING_AI.getCode());
+        XRayReport report = new XRayReport(null,
+                s3Key,
+                ProcessingStatus.PROCESSED_BY_IA.getCode(),
+                null,
+                null,
+                false,
+                appointment);
         XRayReport savedReport = xRayReportRepository.save(report);
 
         String presignedUrl = storageGateway.generatePresignedUploadUrl(s3Key);
@@ -54,14 +55,14 @@ public class XRayReportService {
     @Transactional
     public XRayReport reviewDoctor(Long appointmentId, String finalDoctorDiagnosis) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new ResourceNotFoundException(appointmentId));
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", appointmentId));
 
-        XRayReport xRayReport = xRayReportRepository.findByAppointmentId(appointmentId).orElseThrow(() -> new ResourceNotFoundException("Resource not found."));
-
+        XRayReport xRayReport = xRayReportRepository.findByAppointmentId(appointmentId).orElseThrow(() -> new ResourceNotFoundException("XRayReport", "id of the appointment", appointmentId));
         xRayReport.setFinalMedicalDiagnosis(finalDoctorDiagnosis);
         xRayReport.setProcessingStatus(4);
         appointment.setAppointmentStatus(4);
         xRayReport.setReleasedToPatient(true);
+
         appointmentRepository.save(appointment);
         xRayReportRepository.save(xRayReport);
 
@@ -71,7 +72,7 @@ public class XRayReportService {
     @Transactional
     public List<XRayReport> findAllByPatientIdAndReleasedToPatientTrue(String email) {
         Long patientId = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"))
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email))
                 .getId();
         return xRayReportRepository.findAllByAppointment_Patient_IdAndReleasedToPatientTrue(patientId);
     }

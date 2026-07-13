@@ -28,12 +28,13 @@ public class RefreshTokenService {
 
     @Transactional
     public LoginResponseDto refresh(String token) {
-        RefreshToken refreshToken = refreshTokenRepository.findByToken(token).orElseThrow(() -> new ResourceNotFoundException("Token not found"));
+        RefreshToken refreshToken = refreshTokenRepository.findByToken(token).orElseThrow(() -> new ResourceNotFoundException("RefreshToken", "token", token));
 
         // verify expiration
         if (refreshToken.getExpiryDate().isBefore(Instant.now())) {
+            RefreshToken oldToken = refreshToken;
             refreshToken = insert(refreshToken.getUser().getEmail());
-            refreshTokenRepository.delete(refreshToken);
+            refreshTokenRepository.delete(oldToken);
         }
 
         String accessToken = jwtService.generateToken(refreshToken.getUser().getEmail());
@@ -43,7 +44,7 @@ public class RefreshTokenService {
 
     @Transactional
     public RefreshToken insert(String username) {
-        User user = userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException(("user not found")));
+        User user = userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException(("User not found")));
 
         // delete old (expired) tokens
         refreshTokenRepository.deleteByUserId(user.getId());

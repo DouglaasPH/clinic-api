@@ -8,7 +8,6 @@ import com.douglaasph.clinic_api.models.entities.enums.AppointmentType;
 import com.douglaasph.clinic_api.models.entities.enums.ProcessingStatus;
 import com.douglaasph.clinic_api.repositories.*;
 import com.douglaasph.clinic_api.exceptions.ResourceNotFoundException;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +55,7 @@ public class AppointmentService {
 
     @Transactional
     public Appointment insert(CreateAppointmentDto dto) throws BadRequestException {
-        Employee employee = employeeRepository.findById(dto.employee_id()).orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
+        Employee employee = employeeRepository.findById(dto.employee_id()).orElseThrow(() -> new ResourceNotFoundException("Employee", "id", dto.employee_id()));
 
         if ((dto.type().getCode() == 1 && employee.getPosition().getCode() == 2) ||
                 (dto.type().getCode() == 2 && employee.getPosition().getCode() == 1)) {
@@ -68,14 +67,14 @@ public class AppointmentService {
     }
 
     @Transactional
-    public Appointment book(Long AppointmentId, String email) throws AppointmentConflictException {
+    public Appointment book(Long appointmentId, String email) throws AppointmentConflictException {
         Long loggedPatientId = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(("user not found")))
                 .getPatient()
                 .getId();
 
-        Appointment appointment = appointmentRepository.findById(AppointmentId)
-                .orElseThrow(() -> new ResourceNotFoundException(AppointmentId));
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", appointmentId));
 
         if (appointment.getPatient() != null) {
             throw new AppointmentConflictException("This time slot is already reserved by another patient.");
@@ -102,35 +101,31 @@ public class AppointmentService {
     @Transactional
     public Appointment cancel(Long appointmentId, String email) {
         Long userId = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"))
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email))
                 .getId();
 
-        try {
-            Appointment appointment = appointmentRepository.getReferenceById(appointmentId);
+        Appointment appointment = appointmentRepository.findById(appointmentId).orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", appointmentId));
 
-            if (Objects.equals(appointment.getPatient().getUser().getId(), userId)) {
-                LocalDateTime now = LocalDateTime.now();
-                if (now.isAfter(appointment.getDateHour().minusHours(24))) {
-                    throw new IllegalArgumentException("The appointment can only be cancelled with 24 hours' notice.");
-                }
+        if (Objects.equals(appointment.getPatient().getUser().getId(), userId)) {
+            LocalDateTime now = LocalDateTime.now();
+            if (now.isAfter(appointment.getDateHour().minusHours(24))) {
+                throw new IllegalArgumentException("The appointment can only be cancelled with 24 hours' notice.");
             }
-
-            appointment.setStatus(AppointmentStatus.CANCELED);
-            return appointmentRepository.save(appointment);
-        } catch (EntityNotFoundException e) {
-            throw new ResourceNotFoundException(appointmentId);
         }
+
+        appointment.setStatus(AppointmentStatus.CANCELED);
+        return appointmentRepository.save(appointment);
     }
 
     @Transactional
     public String startExamCapture(Long appointmentId, String email) throws AppointmentConflictException {
         Long loggedEmployeeId = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"))
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email))
                 .getPatient()
                 .getId();
 
         Appointment appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new ResourceNotFoundException(appointmentId));
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", appointmentId));
 
         if (appointment.getEmployee() == null || !appointment.getEmployee().getId().equals(loggedEmployeeId)) {
             throw new AppointmentConflictException("This appointment is not assigned to you.");

@@ -35,4 +35,8 @@ public class XRayReport {
     @OneToOne
     @JoinColumn(name = "appointment_id", nullable = false)
     private Appointment appointment;
+
+    public boolean isReleasedToPatient() {
+        return this.releasedToPatient;
+    }
 }

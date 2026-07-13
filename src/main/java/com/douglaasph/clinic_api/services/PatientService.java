@@ -16,18 +16,14 @@ import com.douglaasph.clinic_api.exceptions.DatabaseException;
 import com.douglaasph.clinic_api.repositories.UserRepository;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.gson.GsonFactory;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -47,10 +43,8 @@ public class PatientService {
     @Autowired
     private JWTService jwtService;
 
-
-
-    @Value("${google.client.id}")
-    private String googleClientId;
+    @Autowired
+    private AuthService authService;
 
     @Transactional
     public Patient register(RegisterPatientDto dto) {
@@ -76,9 +70,7 @@ public class PatientService {
     @Transactional
     public LoginResponseDto completeGooglePatientRegister(CompletePatientSocialDto dto) {
         try {
-            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
-                .setAudience(Collections.singletonList(googleClientId))
-                .build();
+            GoogleIdTokenVerifier verifier = authService.getGoogleIdTokenVerifier();
 
             GoogleIdToken idToken = verifier.verify(dto.googleToken());
 
@@ -90,7 +82,7 @@ public class PatientService {
             String email = payload.getEmail();
 
             if (userRepository.existsByEmail(email)) {
-                throw new TokenException("This email is already registered.");
+                throw new DatabaseException("This email is already registered.");
             }
 
             UserDto userDto = new UserDto(dto.name(), email, dto.password());
@@ -104,6 +96,8 @@ public class PatientService {
             return new LoginResponseDto(true, accessToken, refreshToken.getToken());
         } catch (TokenException e) {
             throw e;
+        } catch (DatabaseException e) {
+            throw e;
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error processing social login", e);
         }
@@ -114,6 +108,6 @@ public class PatientService {
     }
 
     public Patient findById(Long id) {
-        return patientRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Resource not found"));
+        return patientRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Patient", "id", id));
     }
 }

@@ -13,7 +13,6 @@ import com.google.api.client.json.gson.GsonFactory;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -22,7 +21,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -35,9 +33,6 @@ import java.util.Optional;
 public class AuthService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
     @Autowired
     private AuthenticationManager authManager;
@@ -68,9 +63,7 @@ public class AuthService implements UserDetailsService {
 
     @Transactional
     public Map<String, Object> checkGoogleUser(GoogleAuthDto dto) {
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
-                .setAudience(Collections.singletonList(googleClientId))
-                .build();
+        GoogleIdTokenVerifier verifier = getGoogleIdTokenVerifier();
 
         try {
             GoogleIdToken idToken = verifier.verify(dto.googleToken());
@@ -102,19 +95,17 @@ public class AuthService implements UserDetailsService {
         }
     }
 
+    protected GoogleIdTokenVerifier getGoogleIdTokenVerifier() {
+        return new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
+                .setAudience(Collections.singletonList(googleClientId))
+                .build();
+    }
+
     // username --> email
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(("user not found")));
 
         return new UserPrincipal(user);
-    }
-
-    public boolean existsByEmail(String email) {
-        return userRepository.existsByEmail(email);
-    }
-
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(("user not found")));
     }
 }
