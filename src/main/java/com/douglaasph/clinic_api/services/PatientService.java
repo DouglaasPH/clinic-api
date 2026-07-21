@@ -34,8 +34,7 @@ public class PatientService {
     @Autowired
     private PatientRepository patientRepository;
 
-    @Autowired
-    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
     @Autowired
     private RefreshTokenService refreshTokenService;
@@ -47,7 +46,7 @@ public class PatientService {
     private AuthService authService;
 
     @Transactional
-    public Patient register(RegisterPatientDto dto) {
+    public LoginResponseDto register(RegisterPatientDto dto) {
         try {
             User user = new User(null,
                     dto.user().name(),
@@ -61,7 +60,13 @@ public class PatientService {
                     dto.patient().phone(),
                     savedUser);
 
-            return patientRepository.save(patient);
+            Patient savedPatient = patientRepository.save(patient);
+
+            String accessToken = jwtService.generateToken(user.getEmail());
+            RefreshToken refreshToken = refreshTokenService.insert(user.getEmail());
+
+            return new LoginResponseDto(true, accessToken, refreshToken.getToken());
+
         } catch (DataIntegrityViolationException e) {
             throw new DatabaseException("Registration error: Email or document may already exist.");
         }
@@ -88,15 +93,9 @@ public class PatientService {
             UserDto userDto = new UserDto(dto.name(), email, dto.password());
             PatientDto patientDto = new PatientDto(dto.cpf(), dto.phone());
             RegisterPatientDto registerPatientDto = new RegisterPatientDto(userDto, patientDto);
-            register(registerPatientDto);
 
-            String accessToken = jwtService.generateToken(email);
-            RefreshToken refreshToken = refreshTokenService.insert(email);
-
-            return new LoginResponseDto(true, accessToken, refreshToken.getToken());
-        } catch (TokenException e) {
-            throw e;
-        } catch (DatabaseException e) {
+            return register(registerPatientDto);
+        } catch (TokenException | DatabaseException e) {
             throw e;
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error processing social login", e);

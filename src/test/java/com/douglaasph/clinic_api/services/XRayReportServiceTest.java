@@ -1,6 +1,5 @@
 package com.douglaasph.clinic_api.services;
 
-import com.douglaasph.clinic_api.config.aws.QueueGateway;
 import com.douglaasph.clinic_api.config.aws.StorageGateway;
 import com.douglaasph.clinic_api.exceptions.ResourceNotFoundException;
 import com.douglaasph.clinic_api.models.entities.*;
@@ -37,9 +36,6 @@ class XRayReportServiceTest {
     @Mock
     private StorageGateway storageGateway;
 
-    @Mock
-    private QueueGateway queueGateway;
-
     @InjectMocks
     private XRayReportService xRayReportService;
 
@@ -63,7 +59,6 @@ class XRayReportServiceTest {
 
         Mockito.when(xRayReportRepository.save(any(XRayReport.class))).thenReturn(report);
         Mockito.when(storageGateway.generatePresignedUploadUrl(any(String.class))).thenReturn("mocked-pressigned-url");
-        Mockito.doNothing().when(queueGateway).sendExamNotification(any(Long.class), any(String.class));
 
         String response = xRayReportService.createReportAndGenerateUploadUrl(dto.appointment());
 
@@ -72,7 +67,6 @@ class XRayReportServiceTest {
 
         Mockito.verify(xRayReportRepository, Mockito.times(1)).save(any(XRayReport.class));
         Mockito.verify(storageGateway, Mockito.times(1)).generatePresignedUploadUrl(any(String.class));
-        Mockito.verify(queueGateway, Mockito.times(1)).sendExamNotification(any(Long.class), any(String.class));
     }
 
     @Test
@@ -92,7 +86,6 @@ class XRayReportServiceTest {
         assertEquals("Database connection failure", exception.getMessage());
 
         Mockito.verifyNoInteractions(storageGateway);
-        Mockito.verifyNoInteractions(queueGateway);
     }
 
     @Test

@@ -1,6 +1,5 @@
 package com.douglaasph.clinic_api.services;
 
-import com.douglaasph.clinic_api.config.aws.QueueGateway;
 import com.douglaasph.clinic_api.config.aws.StorageGateway;
 import com.douglaasph.clinic_api.exceptions.ResourceNotFoundException;
 import com.douglaasph.clinic_api.models.entities.Appointment;
@@ -30,9 +29,6 @@ public class XRayReportService {
     @Autowired
     private StorageGateway storageGateway;
 
-    @Autowired
-    private QueueGateway queueGateway;
-
     @Transactional
     public String createReportAndGenerateUploadUrl(Appointment appointment) {
         String s3Key = "exams/" + UUID.randomUUID() + ".png";
@@ -47,7 +43,6 @@ public class XRayReportService {
         XRayReport savedReport = xRayReportRepository.save(report);
 
         String presignedUrl = storageGateway.generatePresignedUploadUrl(s3Key);
-        queueGateway.sendExamNotification(savedReport.getId(), s3Key);
 
         return presignedUrl;
     }

@@ -13,6 +13,7 @@ import com.google.api.client.json.gson.GsonFactory;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -35,6 +36,7 @@ public class AuthService implements UserDetailsService {
     private UserRepository userRepository;
 
     @Autowired
+    @Lazy
     private AuthenticationManager authManager;
 
     @Autowired

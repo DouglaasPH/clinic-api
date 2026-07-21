@@ -28,11 +28,9 @@ public class User {
     @Column(nullable = false)
     private Integer role;
 
-    @JsonIgnore
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Employee employee;
 
-    @JsonIgnore
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Patient patient;
 

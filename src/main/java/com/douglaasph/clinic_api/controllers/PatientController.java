@@ -15,9 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -34,10 +32,9 @@ public class PatientController {
             @ApiResponse(responseCode = "400", description = "Invalid data (validation failure)")
     })
     @PostMapping("/register")
-    public ResponseEntity<Patient> register (@RequestBody @Valid RegisterPatientDto dto) {
-        Patient patientResponse = patientService.register(dto);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(patientResponse.getId()).toUri();
-        return ResponseEntity.created(uri).body(patientResponse);
+    public ResponseEntity<LoginResponseDto> register (@RequestBody @Valid RegisterPatientDto dto) {
+        LoginResponseDto response = patientService.register(dto);
+        return ResponseEntity.ok(response);
     }
 
     // AUTHORIZATION: ANYONE
