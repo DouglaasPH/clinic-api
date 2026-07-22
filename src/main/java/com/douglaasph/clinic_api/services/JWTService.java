@@ -20,21 +20,14 @@ import java.util.function.Function;
 @Service
 public class JWTService {
     // Secret key defined in application.properties
-    @Value("${clinic.jwt.secret}")
+    @Value("${jwt.secret}")
     private String secretkey;
 
-    public JWTService() {
-        try {
-            KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
-            SecretKey sk = keyGen.generateKey();
-            secretkey = Base64.getEncoder().encodeToString(sk.getEncoded());
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    @Value("${jwt.expiration.in.minutes}")
+    private Integer expirationInMinutes;
 
     public String generateToken(String username) {
-        return generateToken(username, 5);
+        return generateToken(username, expirationInMinutes);
     }
 
     public String generateToken(String username, Integer expirationInMinutes) {

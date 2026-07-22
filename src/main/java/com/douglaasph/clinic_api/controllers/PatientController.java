@@ -40,7 +40,7 @@ public class PatientController {
     // AUTHORIZATION: ANYONE
     @PostMapping("/register/google")
     @Operation(summary = "Complete Google self-registration", description = "Completes the patient registration by validating the Google token.")
-    public ResponseEntity<LoginResponseDto> completeGooglePatientRegister(@RequestBody @Valid CompletePatientSocialDto dto) {
+    public ResponseEntity<LoginResponseDto> completeGooglePatigentRegister(@RequestBody @Valid CompletePatientSocialDto dto) {
         LoginResponseDto response = patientService.completeGooglePatientRegister(dto);
         return ResponseEntity.ok(response);
     }

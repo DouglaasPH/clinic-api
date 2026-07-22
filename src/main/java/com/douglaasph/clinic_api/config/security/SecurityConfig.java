@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -38,7 +39,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 // Routes of the Swagger and OpenAPI 3:
                                 "/auth/login",
-                                "/auth/google/check",
+                                "/auth/login/google",
                                 "/refresh-token/{refreshToken}",
                                 "/patient/register",
                                 "/patient/register/google",
@@ -64,9 +65,7 @@ public class SecurityConfig {
                         // private routes that require only authentication
                         .requestMatchers("/appointment", "/employee/{id}").authenticated()
                         .anyRequest().authenticated())
-                .httpBasic(Customizer.withDefaults())
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(Customizer.withDefaults()))
+                .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

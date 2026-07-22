@@ -3,6 +3,7 @@ package com.douglaasph.clinic_api.services;
 import com.douglaasph.clinic_api.controllers.dto.auth.GoogleAuthDto;
 import com.douglaasph.clinic_api.controllers.dto.auth.LoginResponseDto;
 import com.douglaasph.clinic_api.controllers.dto.auth.LoginUserDto;
+import com.douglaasph.clinic_api.exceptions.ResourceNotFoundException;
 import com.douglaasph.clinic_api.exceptions.TokenException;
 import com.douglaasph.clinic_api.models.entities.*;
 import com.douglaasph.clinic_api.repositories.UserRepository;
@@ -64,7 +65,7 @@ public class AuthService implements UserDetailsService {
     }
 
     @Transactional
-    public Map<String, Object> checkGoogleUser(GoogleAuthDto dto) {
+    public LoginResponseDto loginGoogle(GoogleAuthDto dto) {
         GoogleIdTokenVerifier verifier = getGoogleIdTokenVerifier();
 
         try {
@@ -83,13 +84,9 @@ public class AuthService implements UserDetailsService {
             if (user.isPresent()) {
                 String accessToken = jwtService.generateToken(user.get().getEmail());
                 RefreshToken refreshToken = refreshTokenService.insert(user.get().getEmail());
-                return Map.of("registered", (Object) true, "auth", new LoginResponseDto(true, accessToken, refreshToken.getToken()));
+                return new LoginResponseDto(true, accessToken, refreshToken.getToken());
             }
-
-            result.put("registered", false);
-            result.put("email", email);
-            result.put("name", payload.get("name"));
-            return result;
+            throw new ResourceNotFoundException("User", "email", email);
         } catch (TokenException e) {
             throw e;
         } catch (Exception e) {

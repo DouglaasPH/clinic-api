@@ -49,6 +49,9 @@ public class RefreshTokenService {
         // delete old (expired) tokens
         refreshTokenRepository.deleteByUserId(user.getId());
 
+        // Forces Hibernate to apply pending deletions to the database immediately.
+        refreshTokenRepository.flush();
+
         String newToken = UUID.randomUUID().toString();
         Instant validity = Instant.now().plus(7, ChronoUnit.DAYS); // 7 days
         RefreshToken refreshToken = new RefreshToken(null, newToken, user, validity);
