@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+
+import java.time.Instant;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,6 +19,10 @@ public class XRayReport {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt = Instant.now();
 
     @Column(nullable = false)
     private String s3Key;
@@ -36,7 +43,4 @@ public class XRayReport {
     @JoinColumn(name = "appointment_id", nullable = false)
     private Appointment appointment;
 
-    public boolean isReleasedToPatient() {
-        return this.releasedToPatient;
-    }
 }

@@ -48,7 +48,7 @@ public class AppointmentService {
     }
 
     public List<Appointment> findAllAvailable() {
-        return appointmentRepository.findByStatusAndDateHourAfter(AppointmentStatus.AVAILABLE, LocalDateTime.now());
+        return appointmentRepository.findByAppointmentStatusAndDateHourAfter(1, LocalDateTime.now());
     }
 
 
@@ -57,8 +57,9 @@ public class AppointmentService {
     public Appointment insert(CreateAppointmentDto dto) throws BadRequestException {
         Employee employee = employeeRepository.findById(dto.employee_id()).orElseThrow(() -> new ResourceNotFoundException("Employee", "id", dto.employee_id()));
 
-        if ((dto.type().getCode() == 1 && employee.getPosition().getCode() == 2) ||
-                (dto.type().getCode() == 2 && employee.getPosition().getCode() == 1)) {
+        // TECHNICAL CODE IS 1 === EXAM_CAPTURE CODE IS 1
+        // DOCTOR CODE IS 2 === REPORT_REVIEW CODE IS 2
+        if (dto.type().getCode() != employee.getPosition().getCode()) {
             throw new BadRequestException("Employee's position incompatible with the type of inquiry.");
         }
 
@@ -97,20 +98,15 @@ public class AppointmentService {
         return appointmentRepository.save(appointment);
     }
 
-    // Business rule: a patient can only cancel up to 24 hours before the scheduled appointment, but an admin can cancel at any time.
+    // Business rule: you can only cancel up to 24 hours before your scheduled appointment..
     @Transactional
     public Appointment cancel(Long appointmentId, String email) {
-        Long userId = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email))
-                .getId();
-
         Appointment appointment = appointmentRepository.findById(appointmentId).orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", appointmentId));
 
-        if (Objects.equals(appointment.getPatient().getUser().getId(), userId)) {
-            LocalDateTime now = LocalDateTime.now();
-            if (now.isAfter(appointment.getDateHour().minusHours(24))) {
-                throw new IllegalArgumentException("The appointment can only be cancelled with 24 hours' notice.");
-            }
+
+        LocalDateTime now = LocalDateTime.now();
+        if (now.isAfter(appointment.getDateHour().minusHours(24))) {
+            throw new IllegalArgumentException("The appointment can only be cancelled with 24 hours' notice.");
         }
 
         appointment.setStatus(AppointmentStatus.CANCELED);

@@ -1,6 +1,7 @@
 package com.douglaasph.clinic_api.models.entities;
 
 import com.douglaasph.clinic_api.models.entities.enums.Position;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,7 @@ public class Employee {
     @Column(nullable = false)
     private Integer position;
 
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;

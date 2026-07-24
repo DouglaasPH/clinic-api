@@ -34,6 +34,7 @@ public class XRayReportService {
         String s3Key = "exams/" + UUID.randomUUID() + ".png";
 
         XRayReport report = new XRayReport(null,
+                null,
                 s3Key,
                 ProcessingStatus.PROCESSED_BY_IA.getCode(),
                 null,
