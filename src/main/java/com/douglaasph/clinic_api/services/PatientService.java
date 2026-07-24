@@ -17,16 +17,18 @@ import com.douglaasph.clinic_api.repositories.UserRepository;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class PatientService {
     @Autowired
     private UserRepository userRepository;
@@ -34,7 +36,7 @@ public class PatientService {
     @Autowired
     private PatientRepository patientRepository;
 
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     private RefreshTokenService refreshTokenService;
@@ -51,7 +53,7 @@ public class PatientService {
             User user = new User(null,
                     dto.user().name(),
                     dto.user().email(),
-                    encoder.encode(dto.user().password()),
+                    passwordEncoder.encode(dto.user().password()),
                     Roles.valueOf(3));
             User savedUser = userRepository.save(user);
 

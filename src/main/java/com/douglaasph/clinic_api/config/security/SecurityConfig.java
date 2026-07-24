@@ -16,6 +16,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -65,6 +66,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/appointment/{appointmentId}/cancel").hasAnyRole("ADMIN", "PATIENT")
                         .requestMatchers(HttpMethod.POST, "/appointment/{appointmentId}/request-upload").hasRole("EMPLOYEE")
                         .requestMatchers(HttpMethod.GET, "/employee").hasAnyRole("ADMIN", "PATIENT")
+                        .requestMatchers(HttpMethod.PUT, "/user/data").hasAnyRole("ADMIN", "EMPLOYEE", "PATIENT")
+                        .requestMatchers(HttpMethod.PUT, "/user/password").hasAnyRole("ADMIN", "EMPLOYEE", "PATIENT")
 
                         // private routes that require only authentication
                         .requestMatchers("/appointment", "/employee/{id}").authenticated()
@@ -86,5 +89,10 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) {
         return config.getAuthenticationManager();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(12);
     }
 }

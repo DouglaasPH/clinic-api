@@ -30,7 +30,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
 
         // If it is the patient login or registration route, let it pass through WITHOUT validating the JWT.
-        if ("/user/login".equals(requestURI) || "/patient/register".equals(requestURI)) {
+        if ("/auth/login".equals(requestURI) || "/patient/register".equals(requestURI)) {
             filterChain.doFilter(request, response);
             return;
         }
